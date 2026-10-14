@@ -1,0 +1,83 @@
+{
+  "extends": [
+    "airbnb",
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:react-hooks/recommended"
+  ],
+  "plugins": ["@typescript-eslint", "prettier"],
+  "rules": {
+    "react/jsx-filename-extension": [2, { "extensions": [".js", ".jsx", ".ts", ".tsx"] }],
+    "no-console": ["warn", { "allow": ["warn", "error"] }],
+    "jsx-a11y/label-has-associated-control": [
+      "error",
+      {
+        "required": {
+          "some": ["nesting", "id"]
+        }
+      }
+    ],
+    "jsx-a11y/label-has-for": [
+      "error",
+      {
+        "required": {
+          "some": ["nesting", "id"]
+        }
+      }
+    ],
+    "object-curly-newline": "off",
+    "no-alert": "off",
+    "react/jsx-props-no-spreading": "off",
+    "import/extensions": "off",
+    "import/no-unresolved": "off",
+    "quotes": ["error", "single", "avoid-escape"],
+    "import/prefer-default-export": "off",
+    "react/function-component-definition": "off",
+    "react/react-in-jsx-scope": "off",
+    "prefer-arrow-callback": "off",
+    "react/require-default-props": "off",
+    "arrow-parens": ["error", "as-needed"],
+    "react/no-unused-prop-types": "warn",
+    "no-unused-vars": "off",
+    "arrow-body-style": "off",
+    "default-case": "off",
+    "consistent-return": "off",
+    "max-len": "off",
+    "linebreak-style": "off",
+    "no-shadow": "off",
+    "react/jsx-one-expression-per-line": "off",
+    "react/button-has-type": "off",
+    "no-useless-escape": "off"
+  },
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "extensions": [".js", ".jsx", ".ts", ".tsx"]
+      }
+    }
+  },
+  "globals": {
+    "document": true,
+    "window": true
+  },
+  "env": {
+    "browser": true
+  },
+  "overrides": [
+    {
+      "files": ["**/*.ts", "**/*.tsx"],
+      "rules": {
+        "import/no-extraneous-dependencies": "off"
+      }
+    },
+    {
+      "files": ["**/*.stories.tsx"],
+      "rules": {
+        "react/function-component-definition": "off",
+        "react/jsx-props-no-spreading": "off"
+      }
+    }
+  ]
+}
