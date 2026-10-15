@@ -1,0 +1,6 @@
+allowBuilds:
+  # postinstall only prints a funding banner
+  core-js: false
+  core-js-pure: false
+  # postinstall installs/validates the native binary Vite depends on
+  esbuild: true

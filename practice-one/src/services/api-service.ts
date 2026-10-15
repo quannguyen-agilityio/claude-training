@@ -1,5 +1,6 @@
 import { axiosClient } from './http-client';
 
+// The response interceptor in http-client unwraps `response.data`, so requests resolve to T itself
 const ApiService = {
   /**
    * Get list of data
@@ -14,7 +15,7 @@ const ApiService = {
    * @param url
    */
   async getItemById<T>(url: string): Promise<T> {
-    return axiosClient.get(url);
+    return axiosClient.get(url) as Promise<T>;
   },
 
   /**
@@ -23,7 +24,7 @@ const ApiService = {
    * @param data
    */
   async create<T>(url: string, data: Omit<T, 'id'>): Promise<T> {
-    return axiosClient.post(url, data);
+    return axiosClient.post(url, data) as Promise<T>;
   },
 
   /**
@@ -32,7 +33,7 @@ const ApiService = {
    * @param data
    */
   async update<T>(url: string, data: Partial<T>): Promise<T> {
-    return axiosClient.patch(url, data);
+    return axiosClient.patch(url, data) as Promise<T>;
   },
 
   /**
@@ -40,7 +41,7 @@ const ApiService = {
    * @param url
    */
   async delete<T>(url: string): Promise<T> {
-    return axiosClient.delete(url);
+    return axiosClient.delete(url) as Promise<T>;
   },
 };
 
