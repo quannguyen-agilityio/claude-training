@@ -33,6 +33,7 @@
 ## High
 
 ### 1. Search box doesn't filter anything
+- **Issue:** https://gitlab.asoft-python.com/quan.nguyen/claude-training/-/work_items/3
 - **Where:** `src/components/Header/SearchBar/index.tsx:6`, `src/stores/book/reducer.ts:13,24`, `src/stores/book/index.tsx:84`
 - **What:** `SearchBar` renders `<Input type="search" …>` with no `value` and no `onChange`. The store has a `searchInput` field (initially `''`), but there's **no action or setter** that ever changes it. `Home` passes `searchInput` to `getBooksBySpecificFields`, so `title_like` is never sent.
 - **Repro:** Type in the search bar. The list doesn't change.
