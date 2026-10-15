@@ -56,7 +56,7 @@ Build a website to manage Books:
 1. Clone repository: `git clone git@gitlab.asoft-python.com:quan.nguyen/react-training.git`
 2. Check out branch: `git checkout feat/practice-one`
 3. CD to the main folder: `cd ./practice-one`
-4. Install packages: `pnpm install`
+4. Install packages with pnpm 11 (pinned in `package.json`; run `corepack enable` to use it automatically): `pnpm install --frozen-lockfile`
 5. Run the project: `pnpm dev`
 6. Run the storybook: `pnpm storybook`
 
