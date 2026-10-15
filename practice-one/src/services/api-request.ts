@@ -19,13 +19,14 @@ export const ApiRequest = {
 
   async getBooksBySpecificFields(category: CategoryTitle, sortType: SortType, searchText: string) {
     let apiPath = '';
+    const encodedSearchText = encodeURIComponent(searchText);
 
     if (category === CategoryTitle.ALL && sortType === SortType.NONE && searchText.length === 0) {
       return this.getAllBooks();
     }
 
     if (category !== CategoryTitle.ALL && sortType !== SortType.NONE && searchText.length !== 0) {
-      apiPath = `?category=${category}&_sort=${sortType}&title_like=${searchText}`;
+      apiPath = `?category=${category}&_sort=${sortType}&title_like=${encodedSearchText}`;
     }
 
     if (category !== CategoryTitle.ALL && sortType !== SortType.NONE && searchText.length === 0) {
@@ -33,11 +34,11 @@ export const ApiRequest = {
     }
 
     if (category !== CategoryTitle.ALL && sortType === SortType.NONE && searchText.length !== 0) {
-      apiPath = `?category=${category}&title_like=${searchText}`;
+      apiPath = `?category=${category}&title_like=${encodedSearchText}`;
     }
 
     if (category === CategoryTitle.ALL && sortType !== SortType.NONE && searchText.length !== 0) {
-      apiPath = `?_sort=${sortType}&title_like=${searchText}`;
+      apiPath = `?_sort=${sortType}&title_like=${encodedSearchText}`;
     }
 
     if (category !== CategoryTitle.ALL && sortType === SortType.NONE && searchText.length === 0) {
@@ -49,7 +50,7 @@ export const ApiRequest = {
     }
 
     if (category === CategoryTitle.ALL && sortType === SortType.NONE && searchText.length !== 0) {
-      apiPath = `?title_like=${searchText}`;
+      apiPath = `?title_like=${encodedSearchText}`;
     }
 
     const books = await ApiService.getList<Book>(`${API_URLS.BOOKS}${apiPath}`);
