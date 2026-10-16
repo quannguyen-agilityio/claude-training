@@ -134,7 +134,7 @@ const BookForm: React.FC<BookFormProps> = ({ formTitle }) => {
         className="w-full py-10 px-7 sm:px-32 border-x bg-white overflow-y-auto dark:bg-black"
         onSubmit={handleSubmit}
       >
-        <h2 className="text-xl dark:text-white text-center mb-8">{formTitle}</h2>
+        <h2 className="text-2xl dark:text-white text-center mb-8">{formTitle}</h2>
         <Input
           type="text"
           value={formData.title}
