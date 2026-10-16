@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Card · Book form</title>
+<link rel="stylesheet" href="_shared/tokens.css">
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<script src="_shared/tailwind.config.js"></script>
+<script src="_shared/design.js"></script>
+</head>
+<body class="bg-canvas font-sans text-ink antialiased" data-spec="book-form">
+<div id="states"></div>
+<script>
+  const D = Design;
+
+  const EMPTY = { title: '', author: '', thumbnail: '', published: '', category: 'Adventure', publishers: '', country: '', description: '' };
+
+  function form({ mode = 'add', values = EMPTY, errors = {}, saving, failed }) {
+    const edit = mode === 'edit';
+    const f = (key, label, extra = {}) =>
+      D.field({ label, value: values[key], error: errors[key], disabled: saving, ...extra });
+    const back = edit
+      ? `<a href="book-detail.html" class="inline-flex h-11 items-center gap-2 rounded-lg text-sm font-semibold text-muted transition-colors hover:text-ink ${D.focusRing}">${D.icon('back')}Back to book</a>`
+      : `<a href="home.html" class="inline-flex h-11 items-center gap-2 rounded-lg text-sm font-semibold text-muted transition-colors hover:text-ink ${D.focusRing}">${D.icon('back')}All books</a>`;
+
+    return `${D.header({ search: false })}
+      ${D.container(
+        `${back}
+        <h1 class="mt-2 text-3xl font-extrabold tracking-tight text-ink">${edit ? 'Edit book' : 'Add a book'}</h1>
+        <p class="mt-1 text-sm text-muted">All fields are required.</p>
+        ${failed ? `<div class="mt-6 max-w-2xl">${D.alertBox({ title: "We couldn't save this book.", text: 'Your changes are still here.', action: 'Try again' })}</div>` : ''}
+        <div class="mt-6 flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-10">
+          <aside class="flex items-center gap-4 lg:order-last lg:block lg:w-56">
+            <div class="w-24 shrink-0 lg:w-full">${D.cover({ title: values.title || 'No cover yet', thumbnail: values.thumbnail && !errors.thumbnail ? values.thumbnail : '' })}</div>
+            <div class="lg:mt-3">
+              <p class="text-sm font-semibold text-ink">Cover preview</p>
+              <p class="mt-1 text-sm text-muted">Updates when you leave the Cover image URL field.</p>
+            </div>
+          </aside>
+          <form class="w-full max-w-2xl rounded-xl border border-line bg-surface p-5 sm:p-8" novalidate ${saving ? 'aria-busy="true"' : ''}>
+            <div class="grid gap-5 sm:grid-cols-2">
+              ${f('title', 'Title', { cls: 'sm:col-span-2' })}
+              ${f('author', 'Author', { cls: 'sm:col-span-2' })}
+              ${f('thumbnail', 'Cover image URL', { type: 'url', placeholder: 'https://', cls: 'sm:col-span-2' })}
+              ${f('published', 'Release year', { type: 'number', placeholder: 'e.g. 1883' })}
+              ${f('category', 'Category', { kind: 'select', options: D.CATEGORIES })}
+              ${f('publishers', 'Publisher')}
+              ${f('country', 'Country')}
+              ${f('description', 'Description', { kind: 'textarea', cls: 'sm:col-span-2' })}
+            </div>
+            <div class="mt-8 flex flex-col-reverse gap-3 border-t border-line pt-6 sm:flex-row sm:justify-end">
+              ${D.button({ label: 'Cancel', variant: 'secondary', href: edit ? 'book-detail.html' : 'home.html', cls: `w-full sm:w-auto ${saving ? 'pointer-events-none opacity-50' : ''}`, attrs: saving ? { 'aria-disabled': 'true' } : {} })}
+              ${D.button({ label: edit ? 'Save changes' : 'Add book', loading: saving, loadingLabel: 'Saving…', cls: 'w-full sm:w-auto', attrs: { type: 'submit' } })}
+            </div>
+          </form>
+        </div>`,
+        'pb-16 pt-4 sm:pt-6',
+      )}`;
+  }
+
+  const t = D.book('Treasure Island');
+  const filled = { ...t };
+
+  const fieldStates = D.container(
+    `<div class="grid gap-5 rounded-xl border border-line bg-surface p-5 sm:grid-cols-2 sm:p-8 lg:grid-cols-3">
+      ${D.field({ label: 'Default', placeholder: 'Placeholder text' })}
+      ${D.field({ label: 'Hover', placeholder: 'Placeholder text', state: 'hover' })}
+      ${D.field({ label: 'Focus', value: 'Treasure Is', state: 'focus' })}
+      ${D.field({ label: 'Filled', value: 'Treasure Island' })}
+      ${D.field({ label: 'Error', value: '', error: 'Enter a title.' })}
+      ${D.field({ label: 'Disabled', value: 'Treasure Island', disabled: true })}
+      ${D.field({ label: 'Select', kind: 'select', value: 'Fantasy', options: D.CATEGORIES })}
+      ${D.field({ label: 'Error + focus', value: 'covers.openlibrary.org/b/isbn/9780141321004', error: 'Enter a full link that starts with http:// or https://.', state: 'focus' })}
+      ${D.field({ label: 'With hint', value: '', placeholder: 'e.g. 1883', hint: 'The year it was first published.' })}
+    </div>`,
+    'py-8',
+  );
+
+  D.states([
+    { name: '1. Add, empty', note: 'Release year starts empty (not 0). Preview shows the fallback tile.', html: form({}) },
+    { name: '2. Edit, filled', note: 'Treasure Island. Submit says "Save changes".', html: form({ mode: 'edit', values: filled }) },
+    {
+      name: '3. Validation errors',
+      note: 'After blur or submit: title blank, URL missing http(s)://, year not a positive number. Focus moves to the first invalid field.',
+      html: form({
+        values: { ...filled, title: '', thumbnail: 'covers.openlibrary.org/b/isbn/9780141321004-L.jpg', published: '0' },
+        errors: { title: 'Enter a title.', thumbnail: 'Enter a full link that starts with http:// or https://.', published: 'Enter a year, like 1883.' },
+      }),
+    },
+    { name: '4. Saving', note: 'Fields disabled, submit shows a spinner and "Saving…".', html: form({ mode: 'edit', values: filled, saving: true }) },
+    { name: '5. Save failed', note: 'Inline alert above the form; the values stay. Replaces alert(error) + reload.', html: form({ mode: 'edit', values: filled, failed: true }) },
+    { name: '6. Field states', note: 'Every field state in one place (also in the foundations card).', html: fieldStates },
+  ]);
+</script>
+</body>
+</html>

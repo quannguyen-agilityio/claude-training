@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Card · Home</title>
+<link rel="stylesheet" href="_shared/tokens.css">
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<script src="_shared/tailwind.config.js"></script>
+<script src="_shared/design.js"></script>
+</head>
+<body class="bg-canvas font-sans text-ink antialiased" data-spec="home">
+<div id="states"></div>
+<script>
+  const D = Design;
+
+  function categoryNav(active, { counts = true, hover } = {}) {
+    const items = [['All books', D.BOOKS.length, null], ...D.CATEGORIES.map(c => [c, 2, c])];
+    const total = counts ? null : 0;
+    return `<nav aria-label="Categories" class="lg:w-60 lg:shrink-0">
+      <h2 class="mb-2 hidden px-3 text-xs font-bold uppercase tracking-wider text-muted lg:block">Categories</h2>
+      <ul class="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6 lg:mx-0 lg:flex-col lg:gap-0.5 lg:overflow-visible lg:px-0 lg:pb-0">
+        ${items
+          .map(([name, count, cat]) => {
+            const selected = name === active || (active === 'All' && !cat);
+            const cls = selected
+              ? 'border-transparent bg-accent-soft font-bold text-accent-ink'
+              : D.force('border-line bg-surface font-medium text-ink hover:bg-raised lg:bg-transparent lg:hover:bg-raised', name === hover ? 'hover' : undefined);
+            return `<li class="shrink-0">
+              <button type="button" aria-pressed="${selected}" class="flex h-11 w-full items-center gap-3 rounded-full border px-4 text-left text-sm transition-colors lg:rounded-lg lg:border-0 lg:px-3 ${cls} ${D.focusRing}">
+                <span class="h-2.5 w-2.5 shrink-0 rounded-full ${cat ? `bg-cat-${cat.toLowerCase()}` : 'bg-muted'}"></span>
+                <span class="whitespace-nowrap lg:flex-1">${name}</span>
+                <span class="text-xs font-semibold text-muted">${total ?? count}</span>
+              </button>
+            </li>`;
+          })
+          .join('')}
+      </ul>
+    </nav>`;
+  }
+
+  function segmented(view) {
+    const seg = (value, label, ic) => {
+      const pressed = view === value;
+      return `<button type="button" aria-pressed="${pressed}" aria-label="${label}" class="inline-flex h-10 w-11 items-center justify-center rounded-md transition-colors ${
+        pressed ? 'bg-accent-soft text-accent-ink' : 'text-muted hover:bg-raised hover:text-ink'
+      } ${D.focusRing}">${D.icon(ic)}</button>`;
+    };
+    return `<div role="group" aria-label="Layout" class="inline-flex gap-0.5 rounded-lg border border-line bg-surface p-0.5">${seg('grid', 'Grid view', 'grid')}${seg('list', 'List view', 'list')}</div>`;
+  }
+
+  function sortSelect(sort) {
+    const id = `sort-${Math.random().toString(36).slice(2, 7)}`;
+    const options = ['Default order', 'Title A–Z', 'Release year', 'Country'];
+    return `<div class="flex items-center gap-2">
+      <label for="${id}" class="text-sm font-medium text-muted">Sort</label>
+      <div class="relative">
+        <select id="${id}" class="${D.FIELD.base} ${D.FIELD.ok} h-11 appearance-none pr-10 text-sm font-semibold">
+          ${options.map(o => `<option${o === sort ? ' selected' : ''}>${o}</option>`).join('')}
+        </select>
+        <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-muted">${D.icon('chevronDown')}</span>
+      </div>
+    </div>`;
+  }
+
+  const grid = (books, opts = []) =>
+    `<ul class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-books sm:gap-x-6 sm:gap-y-9">${books.map((b, i) => D.bookCard(b, opts[i] || {})).join('')}</ul>`;
+  const rows = books => `<ul class="flex flex-col gap-3">${books.map(b => D.bookRow(b)).join('')}</ul>`;
+
+  function home({ category = 'All', view = 'grid', sort = 'Default order', search = '', books = D.BOOKS, count, body, counts, hover }) {
+    const title = category === 'All' ? 'All books' : category;
+    const countText = count ?? `${books.length} ${books.length === 1 ? 'book' : 'books'}`;
+    const content = body ?? (view === 'grid' ? grid(books) : rows(books));
+    return `${D.header({ searchValue: search })}
+      ${D.container(
+        `<div class="flex flex-col gap-6 lg:flex-row lg:gap-10">
+          ${categoryNav(category, { counts, hover })}
+          <main class="min-w-0 flex-1">
+            <div class="flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <h1 class="text-3xl font-extrabold tracking-tight text-ink">${title}</h1>
+                <p class="mt-1 text-sm text-muted" aria-live="polite">${countText}</p>
+              </div>
+              <div class="flex flex-wrap items-center gap-2">${segmented(view)}${sortSelect(sort)}</div>
+            </div>
+            <div class="mt-6">${content}</div>
+          </main>
+        </div>`,
+        'py-6 sm:py-8',
+      )}`;
+  }
+
+  const byYear = [...D.BOOKS].filter(b => b.category === 'Adventure').sort((a, b) => a.published - b.published);
+  const noCover = D.BOOKS.slice(0, 5).map((b, i) => (i === 0 || i === 3 ? { ...b, thumbnail: '' } : b));
+
+  D.states([
+    { name: '1. Default', note: 'All books, grid view, default order, all 12 seed books.', html: home({}) },
+    { name: '2. List view', note: 'Same books as rows: small cover, title, author · year, category, actions.', html: home({ view: 'list' }) },
+    {
+      name: '3. Category + sort',
+      note: 'Adventure selected, sorted by release year.',
+      html: home({ category: 'Adventure', sort: 'Release year', books: byYear }),
+    },
+    {
+      name: '4. No search results',
+      note: 'Search "dune" matches nothing. Offer to clear the search.',
+      html: home({
+        search: 'dune',
+        books: [],
+        body: D.emptyState({
+          icon: 'search',
+          title: 'No books match "dune"',
+          text: 'Check the spelling, or search for a different title.',
+          actions: D.button({ label: 'Clear search', variant: 'secondary', icon: 'x' }),
+        }),
+      }),
+    },
+    {
+      name: '5. Empty library',
+      note: 'No books at all (everything deleted). Point to Add a book.',
+      html: home({
+        books: [],
+        counts: false,
+        body: D.emptyState({
+          icon: 'book',
+          title: 'No books yet',
+          text: 'Add your first book to start your shelf.',
+          actions: D.button({ label: 'Add a book', icon: 'plus', href: 'book-form.html' }),
+        }),
+      }),
+    },
+    {
+      name: '6. Loading',
+      note: 'Header, categories and toolbar render right away; the books are skeletons.',
+      html: home({
+        count: 'Loading books…',
+        body: `<ul class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-books sm:gap-x-6 sm:gap-y-9" aria-busy="true">${Array.from({ length: 10 }, D.skeletonCard).join('')}</ul>`,
+      }),
+    },
+    {
+      name: '7. Load error',
+      note: 'The request failed. Replaces alert(error).',
+      html: home({
+        count: '',
+        body: D.alertBox({ title: "We couldn't load your books.", text: 'Check your connection and try again.', action: 'Try again' }),
+      }),
+    },
+    {
+      name: '8. Missing cover',
+      note: 'Books 1 and 4 have no cover (or it failed to load): a fallback tile with the title.',
+      html: home({ books: noCover, count: '5 books' }),
+    },
+    {
+      name: '9. Interaction states',
+      note: 'Cards left to right: default, hover (cover shadow + underline), keyboard focus, delete button hover. "Romance" category hovered.',
+      html: home({ books: D.BOOKS.slice(0, 4), count: '4 books', hover: 'Romance', body: grid(D.BOOKS.slice(0, 4), [{}, { state: 'hover' }, { state: 'focus' }, { state: 'actions' }]) }),
+    },
+  ]);
+</script>
+</body>
+</html>

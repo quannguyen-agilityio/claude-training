@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Card · Foundations</title>
+<link rel="stylesheet" href="_shared/tokens.css">
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<script src="_shared/tailwind.config.js"></script>
+<script src="_shared/design.js"></script>
+</head>
+<body class="bg-canvas font-sans text-ink antialiased" data-spec="foundations">
+<div id="states"></div>
+<script>
+  const D = Design;
+  const block = html => D.container(html, 'py-8 sm:py-10');
+  const h = (title, text = '') =>
+    `<h2 class="text-xl font-extrabold text-ink">${title}</h2>${text ? `<p class="mt-1 text-sm text-muted">${text}</p>` : ''}`;
+  const panel = html => `<div class="mt-5 rounded-xl border border-line bg-surface p-5 sm:p-6">${html}</div>`;
+  const caption = t => `<p class="mt-2 text-xs font-semibold text-muted">${t}</p>`;
+
+  // ---- 1. Colors ----
+  const COLORS = [
+    ['canvas', 'Page background', '#F7F8FA', '#0E1117'],
+    ['surface', 'Header, cards, panels, inputs', '#FFFFFF', '#161B22'],
+    ['raised', 'Hover fills, skeletons', '#F1F3F6', '#1F2630'],
+    ['line', 'Dividers, card borders', '#E4E7EC', '#2A313C'],
+    ['line-strong', 'Control borders (≥3:1)', '#8A93A3', '#66717F'],
+    ['ink', 'Main text', '#101828', '#E6EAF0'],
+    ['muted', 'Secondary text (≥4.5:1)', '#5B6474', '#9AA4B2'],
+    ['accent', 'Primary, selected', '#0B63D8', '#4C9AFF'],
+    ['accent-hover', 'Hover on accent', '#0A57BF', '#74B0FF'],
+    ['accent-soft', 'Selected background', '#E8F1FE', '#16263D'],
+    ['accent-ink', 'Text on accent-soft, links', '#0A57BF', '#8EC0FF'],
+    ['on-accent', 'Text on accent', '#FFFFFF', '#0E1117'],
+    ['danger', 'Delete, errors', '#C92A2A', '#FF8A8A'],
+    ['danger-hover', 'Hover on danger', '#A61E1E', '#FFA3A3'],
+    ['danger-soft', 'Error background', '#FDECEC', '#3A1D1F'],
+    ['on-danger', 'Text on danger', '#FFFFFF', '#0E1117'],
+    ['focus', 'Focus ring', '#0B63D8', '#4C9AFF'],
+  ];
+  const CATS = D.CATEGORIES.map(c => [`cat-${c.toLowerCase()}`, c]);
+  const colors = block(`${h('Color tokens', 'Named by role. Each card shows the current theme; values are light / dark. Toggle "Dark theme" in the bar to compare.')}
+    <div class="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+      ${COLORS.map(
+        ([name, use, light, dark]) => `<div class="rounded-xl border border-line bg-surface p-3">
+          <div class="h-14 rounded-lg border border-line bg-${name}"></div>
+          <p class="mt-2 text-sm font-bold text-ink">${name}</p>
+          <p class="text-xs text-muted">${use}</p>
+          <p class="mt-1 font-mono text-xs text-muted">${light} / ${dark}</p>
+        </div>`,
+      ).join('')}
+    </div>
+    <h3 class="mt-8 text-sm font-bold text-ink">Category dots (decorative only)</h3>
+    <div class="mt-3 flex flex-wrap gap-2">${D.CATEGORIES.map(D.badge).join('')}</div>
+    <h3 class="mt-8 text-sm font-bold text-ink">Text pairs</h3>
+    <div class="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div class="rounded-lg bg-surface p-4"><p class="font-semibold text-ink">ink on surface</p><p class="text-sm text-muted">muted on surface</p></div>
+      <div class="rounded-lg bg-canvas p-4 ring-1 ring-line"><p class="font-semibold text-ink">ink on canvas</p><p class="text-sm text-muted">muted on canvas</p></div>
+      <div class="rounded-lg bg-accent p-4"><p class="font-semibold text-on-accent">on-accent on accent</p></div>
+      <div class="rounded-lg bg-accent-soft p-4"><p class="font-semibold text-accent-ink">accent-ink on accent-soft</p></div>
+    </div>`);
+
+  // ---- 2. Type ----
+  const TYPE = [
+    ['Page title (detail)', 'text-4xl font-extrabold tracking-tight', 'Treasure Island'],
+    ['Page title (lists, forms)', 'text-3xl font-extrabold tracking-tight', 'All books'],
+    ['Section title', 'text-xl font-extrabold', 'More in Adventure'],
+    ['Card title', 'text-base font-bold', 'Around the World in Eighty Days'],
+    ['Long description', 'text-lg leading-relaxed', 'Young Jim Hawkins finds a treasure map and sails with the cunning Long John Silver.'],
+    ['Body', 'text-base', 'Add your first book to start your shelf.'],
+    ['UI text', 'text-sm font-semibold', 'Add book · Sort · Cancel'],
+    ['Meta', 'text-sm text-muted', 'Robert Louis Stevenson · 1883'],
+    ['Overline', 'text-xs font-bold uppercase tracking-wider text-muted', 'Categories'],
+  ];
+  const type = block(`${h('Typography', 'Manrope only, on Tailwind’s default scale.')}
+    ${panel(`<div class="divide-y divide-line">${TYPE.map(
+      ([role, cls, sample]) => `<div class="grid gap-1 py-4 first:pt-0 last:pb-0 md:grid-cols-[14rem_1fr] md:items-baseline md:gap-6">
+        <div><p class="text-sm font-semibold text-ink">${role}</p><p class="font-mono text-xs text-muted">${cls}</p></div>
+        <p class="${cls} ${cls.includes('text-muted') ? '' : 'text-ink'}">${sample}</p>
+      </div>`,
+    ).join('')}</div>`)}`);
+
+  // ---- 3. Buttons ----
+  const STATES = ['default', 'hover', 'focus', 'active', 'disabled', 'loading'];
+  const VARIANTS = [
+    ['primary', 'Add book', 'plus'],
+    ['secondary', 'Cancel', null],
+    ['ghost', 'Clear', 'x'],
+    ['danger', 'Delete book', 'trash'],
+    ['danger-secondary', 'Delete', 'trash'],
+  ];
+  const buttons = block(`${h('Buttons', 'All h-11 (44px). Hover changes the fill, active nudges 1px, disabled is 50% and inert, loading keeps its width.')}
+    ${panel(`<div class="overflow-x-auto"><table class="w-full min-w-[48rem] text-left">
+      <thead><tr>${['', ...STATES].map(s => `<th class="pb-3 pr-4 text-xs font-bold uppercase tracking-wider text-muted">${s}</th>`).join('')}</tr></thead>
+      <tbody>${VARIANTS.map(
+        ([v, label, ic]) => `<tr>
+          <th class="py-2 pr-4 font-mono text-xs font-normal text-muted">${v}</th>
+          ${STATES.map(
+            s => `<td class="py-2 pr-4">${D.button({
+              label,
+              icon: ic,
+              variant: v,
+              state: ['hover', 'focus', 'active'].includes(s) ? s : undefined,
+              disabled: s === 'disabled',
+              loading: s === 'loading',
+              loadingLabel: v.startsWith('danger') ? 'Deleting…' : 'Saving…',
+              cls: s === 'active' ? 'translate-y-px' : '',
+            })}</td>`,
+          ).join('')}
+        </tr>`,
+      ).join('')}</tbody></table></div>`)}
+    <h3 class="mt-8 text-sm font-bold text-ink">Icon buttons (always with aria-label)</h3>
+    ${panel(`<div class="flex flex-wrap gap-8">${['ghost', 'secondary'].map(
+      v => `<div><p class="mb-2 font-mono text-xs text-muted">${v}</p><div class="flex gap-3">${['default', 'hover', 'focus', 'disabled']
+        .map(s => `<div class="text-center">${D.iconButton({ label: `Edit (${s})`, icon: 'edit', variant: v, state: s, disabled: s === 'disabled' })}${caption(s)}</div>`)
+        .join('')}</div></div>`,
+    ).join('')}
+      <div><p class="mb-2 font-mono text-xs text-muted">theme toggle</p>${D.themeToggle()}${caption('click it')}</div>
+    </div>`)}`);
+
+  // ---- 4. Fields ----
+  const fields = block(`${h('Fields', 'Label above, message below in normal flow. Errors have an icon and text, set aria-invalid and aria-describedby.')}
+    ${panel(`<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      ${D.field({ label: 'Default', placeholder: 'Placeholder text' })}
+      ${D.field({ label: 'Hover', placeholder: 'Placeholder text', state: 'hover' })}
+      ${D.field({ label: 'Focus', value: 'Treasure Is', state: 'focus' })}
+      ${D.field({ label: 'Filled', value: 'Treasure Island' })}
+      ${D.field({ label: 'Error', error: 'Enter a title.' })}
+      ${D.field({ label: 'Disabled', value: 'Treasure Island', disabled: true })}
+      ${D.field({ label: 'With hint', placeholder: 'e.g. 1883', hint: 'The year it was first published.' })}
+      ${D.field({ label: 'Select', kind: 'select', value: 'Adventure', options: D.CATEGORIES })}
+      ${D.field({ label: 'Textarea', kind: 'textarea', rows: 3, value: 'Young Jim Hawkins finds a treasure map and sails with the cunning Long John Silver in search of buried pirate gold.' })}
+    </div>
+    <div class="mt-8 grid gap-6 sm:grid-cols-2">
+      <div><p class="${D.FIELD.label}">Search, empty</p>${D.searchField()}</div>
+      <div><p class="${D.FIELD.label}">Search, filled (clear button)</p>${D.searchField({ value: 'treasure' })}</div>
+    </div>`)}`);
+
+  // ---- 5. Feedback ----
+  const feedback = block(`${h('Feedback', 'Replaces alert() calls and the full-screen spinner.')}
+    <div class="mt-5 grid gap-6 lg:grid-cols-2">
+      <div>${D.alertBox({ title: "We couldn't load your books.", text: 'Check your connection and try again.', action: 'Try again' })}${caption('Alert (danger), with action')}</div>
+      <div>${D.alertBox({ title: "We couldn't delete this book.", text: 'Try again in a moment.' })}${caption('Alert (danger), no action')}</div>
+      <div class="rounded-xl border border-line bg-surface">${D.emptyState({ icon: 'book', title: 'No books yet', text: 'Add your first book to start your shelf.', actions: D.button({ label: 'Add a book', icon: 'plus' }) })}</div>
+      <div class="rounded-xl border border-line bg-surface p-5">
+        <ul class="grid grid-cols-3 gap-4">${Array.from({ length: 3 }, D.skeletonCard).join('')}</ul>
+        ${caption('Skeletons: cover, title, meta lines (animate-pulse on raised)')}
+      </div>
+    </div>`);
+
+  // ---- 6. Shape ----
+  const shape = block(`${h('Shape, elevation and focus')}
+    ${panel(`<div class="flex flex-wrap items-end gap-8">
+      ${[['rounded-md', 'covers'], ['rounded-lg', 'controls'], ['rounded-xl', 'cards, panels, dialogs'], ['rounded-full', 'chips, dots']]
+        .map(([r, use]) => `<div><div class="h-20 w-20 border border-line-strong bg-raised ${r}"></div><p class="mt-2 font-mono text-xs text-ink">${r}</p><p class="text-xs text-muted">${use}</p></div>`)
+        .join('')}
+      ${[['shadow-cover', 'book covers'], ['shadow-popover', 'menus, dialogs']]
+        .map(([s, use]) => `<div><div class="h-20 w-20 rounded-xl bg-surface ${s}"></div><p class="mt-2 font-mono text-xs text-ink">${s}</p><p class="text-xs text-muted">${use}</p></div>`)
+        .join('')}
+      <div><div class="h-20 w-20 rounded-lg bg-surface ring-2 ring-focus ring-offset-2 ring-offset-canvas"></div><p class="mt-2 font-mono text-xs text-ink">focus ring</p><p class="text-xs text-muted">ring-2 + offset-2</p></div>
+      <div class="w-24">${D.cover(D.book('The Hobbit'))}<p class="mt-2 font-mono text-xs text-ink">aspect-cover</p><p class="text-xs text-muted">2:3, never cropped</p></div>
+    </div>`)}`);
+
+  D.states([
+    { name: '1. Color tokens', note: 'Swatches use the live tokens, so they switch with the theme.', html: colors },
+    { name: '2. Typography', note: 'Manrope, Tailwind default scale.', html: type },
+    { name: '3. Buttons', note: 'Every variant × state. Hover/focus/active are forced so they show without interacting.', html: buttons },
+    { name: '4. Fields', note: 'Text, select, textarea and search in every state.', html: fields },
+    { name: '5. Feedback', note: 'Alert, empty state, skeletons.', html: feedback },
+    { name: '6. Shape and elevation', note: 'Radii, shadows, focus ring, cover ratio.', html: shape },
+  ]);
+</script>
+</body>
+</html>
