@@ -30,7 +30,7 @@ Build a website to manage Books:
 - **Tailwind CSS** v3.0: A utility-first CSS framework packed with classes that can be composed to build any design, directly in your markup.
 - **Storybook** v6.5: A frontend workshop for building UI components and pages in isolation.
 - **React Router Dom** v6.6.1: An npm package that enables you to implement dynamic routing in a web app.
-- **Axios** v1.3.2: Axios is a promised-based HTTP client for JavaScript. It has the ability to make HTTP requests from the browser and handle the transformation of request and response data.
+- **Mock data**: Books are seeded from `src/data/books.json` and changes are saved in the browser's `localStorage`, so no backend is needed.
 - **Vercel** v25.0.0: Vercel is the platform for frontend developers, providing the speed and reliability innovators need to create at the moment of inspiration.
 
 ## TIMELINE
@@ -57,7 +57,8 @@ Build a website to manage Books:
 2. Check out branch: `git checkout feat/practice-one`
 3. CD to the main folder: `cd ./practice-one`
 4. Install packages with pnpm 11 (pinned in `package.json`; run `corepack enable` to use it automatically): `pnpm install --frozen-lockfile`
-5. Run the project: `pnpm dev`
+5. Run the project: `pnpm dev` (no backend or `.env` needed)
+   - To reset the data to the seed, run `localStorage.removeItem('books'); location.reload();` in the browser console
 6. Run the storybook: `pnpm storybook`
 
 ## AUTHOR

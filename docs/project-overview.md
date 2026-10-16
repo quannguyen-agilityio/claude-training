@@ -70,20 +70,26 @@ interface Book {
 
 No 404/error route is defined.
 
-### Backend API consumed (external, not part of this repo)
+### Data source (local mock data, no backend)
 
-The app calls a REST backend at `ROOT_URL` with Axios (`src/services/`). The response interceptor unwraps `response.data`.
+There is no backend. `ApiRequest` (`src/services/api-request.ts`) keeps its six async methods, but reads and writes an in-memory copy of the books through `MockDb` (`src/services/mock-db.ts`):
 
-| Method | Endpoint | Used for |
+- **Seed:** `src/data/books.json` (`{ "version": 1, "books": [...] }`, 12 books, two per category).
+- **Persistence:** changes are saved to `localStorage` under `books`, with the seed version under `books_seed_version`. If storage is empty, corrupted, or holds an older seed version, the seed is loaded again.
+- **Latency:** every call waits `MOCK_DELAY_MS` (300 ms) so loading states stay visible. Set it to `0` to disable.
+
+| Method | Used for | Behaviour |
 |---|---|---|
-| GET | `/books` | All books (category counts + default list) |
-| GET | `/books?category=…&_sort=…&title_like=…` | Filtered/sorted list (any combination of the three params) |
-| GET | `/books/:id` | Details / edit pre-fill |
-| POST | `/books` | Create |
-| PATCH | `/books/:id` | Update |
-| DELETE | `/books/:id` | Delete |
+| `getAllBooks()` | Category counts + default list | All stored books |
+| `getBooksBySpecificFields(category, sort, search)` | Filtered/sorted list | Exact `category` match, case-insensitive substring on `title`, ascending sort (numeric for `published`, `localeCompare` for `title`/`country`) |
+| `getBookById(id)` | Details / edit pre-fill | Throws `Book not found` for an unknown id |
+| `addBook(book)` | Create | Appends the book |
+| `updateBook(book)` | Update | Merges into the stored book (like the old PATCH) |
+| `deleteBook(id)` | Delete | Removes the book |
 
-The `_sort` and `title_like` query conventions are **json-server 0.x**. **json-server 0.17.4 satisfies the whole contract (verified):** category filter, `_sort` (numeric for `published`, alphabetical for `title`), case-insensitive `title_like`, get by id, POST (201), PATCH (merge), DELETE, and CORS for `http://localhost:3000`. No backend, `db.json`, or mock data is in the repo. See [Run locally](#6-run-locally) for a ready-to-use setup.
+**Reset to the seed data:** run `localStorage.removeItem('books'); location.reload();` in the browser console, or bump `"version"` in `books.json`.
+
+To go back to a real API later, add an HTTP-backed implementation behind the same `ApiRequest` interface.
 
 ---
 
@@ -94,17 +100,17 @@ Versions are resolved from `pnpm-lock.yaml`. The ranges come from `package.json`
 | Concern | Choice |
 |---|---|
 | Framework | **React 18.2** SPA (not Next.js) |
-| Build tool / dev server | **Vite 4.0.4** with `@vitejs/plugin-react` 3, plus `vite-plugin-environment` |
+| Build tool / dev server | **Vite 4.0.4** with `@vitejs/plugin-react` 3 |
 | Routing | **React Router DOM 6.8.0** (`createBrowserRouter`) |
 | Language | **TypeScript 4.9.4**, `strict: true` |
 | Styling | **Tailwind CSS 3.2.4** (`darkMode: 'class'`, custom colours and fonts), PostCSS + Autoprefixer, `clsx` |
 | Fonts | Local TTFs in `src/assets/fonts` (Rubik, Noto Sans, Dancing Script) |
 | State management | React Context + `useReducer` (`src/stores/book`); local `useState` per page |
-| Data fetching | Axios 1.3 inside `useEffect` (no React Query/SWR, no caching) |
+| Data fetching | Async `ApiRequest` calls inside `useEffect` (no React Query/SWR, no caching) |
 | Utility hooks | `usehooks-ts` (`useOnClickOutside`, `useWindowSize`) |
 | IDs | `uuid` v9 |
 | Auth | None |
-| Database / ORM | None in the frontend; relies on an external REST API |
+| Database / ORM | None. Mock data: `src/data/books.json` + `localStorage` |
 | Component workshop | **Storybook 6.5** with `@storybook/builder-vite` |
 | Lint / format | ESLint 8 (airbnb + typescript-eslint + react-hooks), Prettier 2 |
 | Git hooks | Husky 8 + commitlint (Conventional Commits) |
@@ -121,7 +127,7 @@ Declared but **not used anywhere in `src/`**: `localforage`, `match-sorter`, `so
 | **Node.js** | No `engines` field, `.nvmrc`, or `.node-version`. Install, lint, and build **work on Node 22.22.2 (verified)**. Node 18 LTS also matches the lockfile (`@types/node@18.11.18`; Vite 4 needs Node ≥ 14.18) **(inferred)**. On Node ≥ 17, **Storybook crashes on startup** unless `NODE_OPTIONS=--openssl-legacy-provider` is set **(verified on Node 22)**. See [Run locally](#6-run-locally). |
 | **Package manager** | **pnpm 7** (lockfile `lockfileVersion: 5.4`). The README and the Husky hooks also use pnpm. **Use pnpm 7 specifically (verified):** a newer pnpm (tested with 11.21.0) does *not* honour this lockfile. See the warning box under [Installation](#4-installation). If your global pnpm is newer, run pnpm 7 through `npx` (e.g. `npx pnpm@7.33.7 <cmd>`) or Corepack. |
 | **Git** | Required by `prepare` (Husky install). |
-| **Backend API** | A REST server exposing `/books` (see the API table above). **json-server 0.17.4 works (verified).** What happens without a working backend depends on the setup:<br>• `ROOT_URL` set but the server is down → "Network error. Please try again later." alert (from the axios interceptor) **(inferred)**<br>• `ROOT_URL` **unset** in `pnpm dev` → requests hit Vite itself, which returns **404** → alert "Request failed with status code 404" and an empty list **(verified: 404 from Vite; empty list)**<br>• `ROOT_URL` **unset at build time** → the production app **crashes** with React Router's "Unexpected Application Error! — e.map is not a function", because the static server answers `/books` with `index.html` **(verified)** |
+| **Backend API** | None. Books come from local mock data (see [Data source](#data-source-local-mock-data-no-backend)). |
 
 No DB, Redis, or other services are needed by the frontend itself.
 
@@ -131,7 +137,6 @@ No DB, Redis, or other services are needed by the frontend itself.
 
 ```bash
 cd practice-one
-cp .env.sample .env                  # then set ROOT_URL (see next section)
 pnpm install --frozen-lockfile       # with pnpm 7; also runs "prepare" → husky install
 # if your global pnpm is newer than 7:
 npx pnpm@7.33.7 install --frozen-lockfile
@@ -148,72 +153,31 @@ Verified result (pnpm 7.33.7): installs in seconds, leaves `pnpm-lock.yaml` unch
 
 Notes:
 - `prepare` runs `cd .. && husky install practice-one/.husky`. It assumes the **parent directory of `practice-one/` is the git root**. In this checkout that parent is `claude-training/`, so the install **sets `core.hooksPath = practice-one/.husky` in the claude-training repo's git config (verified)**. To undo it: `git -C .. config --unset core.hooksPath`.
-- The `cp .env.sample .env` step isn't needed for install, lint, or build. It only matters at runtime.
 - The original README says to clone `git@gitlab.asoft-python.com:quan.nguyen/react-training.git` and check out `feat/practice-one`. That's the upstream source, not this repo.
 
 ---
 
 ## 5. Environment variables
 
-Template: `practice-one/.env.sample`. The real `.env` is git-ignored.
-
-| Variable | Purpose | Required? | Used in |
-|---|---|---|---|
-| `ROOT_URL` | Base URL of the books REST API, used as Axios `baseURL`. Example shape: `http://localhost:<port>` (no trailing slash, since paths start with `/books`). | **Required**, for both `pnpm dev` and `pnpm build`. Without it the app shows no data in dev and crashes in production (see [Prerequisites](#3-prerequisites)) **(verified)**. | `src/services/app-config.ts` → `src/services/http-client.ts` |
-
-**Ways to set it (both verified):**
-
-```bash
-# a) .env file in practice-one/ (the "KEY = value" format with spaces from .env.sample is fine)
-echo 'ROOT_URL=http://localhost:3001' > .env
-# b) shell variable for one command
-ROOT_URL=http://localhost:3001 pnpm dev
-```
-
-The value is **baked in at build time**. `pnpm build` inlines it into `dist/assets/index-*.js`, so changing it requires a rebuild. Restart `pnpm dev` after editing `.env`.
-
-How it reaches the browser: `vite-plugin-environment` is configured with `EnvironmentPlugin('all')` in `vite.config.ts`. This exposes variables as `process.env.X` in client code instead of Vite's usual `import.meta.env.VITE_X`.
-
-> ⚠️ **Dev server leaks your whole shell environment (verified).** With `'all'`, `pnpm dev` serves **every** environment variable of the shell that started it (126 in the test run, including tokens, paths, and usernames) to the browser through the `/@vite/env` module. Anyone who can reach the dev server can read them. The **production build** only inlines variables the code references (just `ROOT_URL`; no other values were found in the bundle) **(verified)**. Don't start `pnpm dev` from a shell holding secrets, and don't expose it with `--host`.
+None. The app no longer reads `ROOT_URL` or any other environment variable, and `.env.sample` was removed. `vite-plugin-environment` was removed too, so the dev server no longer exposes the shell environment to the browser.
 
 ---
 
 ## 6. Run locally
 
-### 6.1 Start a backend (needed for any data)
-
-The repo has no backend. This setup was verified to work end to end. Run it **outside** `practice-one/` so no project files are added:
-
-```bash
-# in any scratch folder, create db.json:  { "books": [ { "id": "a1", "title": "...", "thumbnail": "https://...",
-#   "author": "...", "published": 1937, "description": "...", "category": "Fantasy",
-#   "publishers": "...", "country": "..." } ] }
-npx json-server@0.17.4 --watch db.json --port 3001
-```
-
-- Use **json-server 0.17.x**. Version 1.x changed the query syntax, so `_sort`/`title_like` won't behave the same **(inferred)**.
-- `category` must exactly match one of `Adventure, Contemporary, Romance, Fantasy, Dystopian, Mystery`.
-- Fill every field. The edit form refuses to save books with empty fields.
-
-### 6.2 Dev server
+### 6.1 Dev server
 
 ```bash
 cd practice-one
-ROOT_URL=http://localhost:3001 pnpm dev   # or put ROOT_URL in .env, then: pnpm dev
+pnpm dev
 # → http://localhost:3000
 ```
 
-**Verified:** `VITE v4.0.4 ready in ~250 ms`, `Local: http://localhost:3000/`. In headless Chrome with the backend above:
-- Home lists all books, and the "Showing N Result(s)" count is correct.
-- `/:bookId` shows the details page.
-- `/edit-book/:bookId` opens with the form pre-filled.
-- Deep links return 200, and the browser console shows no errors.
-
+- No backend or `.env` is needed. Books come from `src/data/books.json` on first load, then from `localStorage`.
 - **Port:** `3000` (`server.port` in `vite.config.ts`). Vite moves to the next free port if 3000 is taken **(inferred)**.
-- **Seed / migrations:** none. Seed data comes from your backend's `db.json`.
-- Mind the [env-leak warning](#5-environment-variables).
+- **Seed data:** `src/data/books.json`. Each book must fill every field, `category` must exactly match one of `Adventure, Contemporary, Romance, Fantasy, Dystopian, Mystery`, and `thumbnail` must be a URL. Bump `version` so existing browsers pick up seed changes.
 
-### 6.3 Storybook
+### 6.2 Storybook
 
 ```bash
 # Node ≥ 17 (verified on Node 22): the legacy OpenSSL flag is REQUIRED
@@ -232,12 +196,12 @@ NODE_OPTIONS=--openssl-legacy-provider pnpm storybook   # → http://localhost:6
 ## 7. Build & production
 
 ```bash
-ROOT_URL=https://your-api.example pnpm build   # tsc (type-check only, noEmit) && vite build. ROOT_URL is baked in
+pnpm build          # tsc (type-check only, noEmit) && vite build
 pnpm preview        # serve the built dist/ locally → http://localhost:4173
 NODE_OPTIONS=--openssl-legacy-provider pnpm build-storybook   # static Storybook → storybook-static/ (not run, inferred)
 ```
 
-- **Preview (verified):** serves on `http://localhost:4173/`. Deep links (`/a1`, `/edit-book/a1`) return 200 because `vite preview` has an SPA fallback. With `ROOT_URL` set at build time and json-server running, the built app renders all books. **Without `ROOT_URL` at build time, the built app crashes** (see [Prerequisites](#3-prerequisites)).
+- **Preview (verified):** serves on `http://localhost:4173/`. Deep links (`/a1`, `/edit-book/a1`) return 200 because `vite preview` has an SPA fallback. The built app renders the seed books with no backend.
 
 - **Verified:** `pnpm build` succeeds. `tsc` reports no type errors, then `vite v4.0.4` transforms 197 modules. It prints a harmless "Browserslist: caniuse-lite is outdated" notice.
 - **Output:** `practice-one/dist/` (git-ignored), containing `index.html`, `vite.svg`, and `assets/` with one JS bundle (~244 kB, ~81 kB gzip), one CSS file (~17 kB), the three fonts (~0.9 MB total, the largest part of the build), and the SVG icons **(verified)**.
@@ -253,7 +217,7 @@ NODE_OPTIONS=--openssl-legacy-provider pnpm build-storybook   # static Storybook
 
 **There are no automated tests.** I found no Jest, Vitest, Playwright, or Cypress config or dependency, no `*.test.*` or `*.spec.*` files, and no `test` script. Running `pnpm test` fails with `ERR_PNPM_NO_SCRIPT  Missing script: test` (exit code 1) **(verified)**. There are therefore no commands for single-file, watch, coverage, or e2e test runs.
 
-The closest thing is **Storybook stories** (`*.stories.tsx`, 12 files, 18 stories) for visual checks. 15 of 18 stories render; BookCard, FeaturesBar, and Header fail **(verified)**. See [Storybook](#63-storybook).
+The closest thing is **Storybook stories** (`*.stories.tsx`, 12 files, 18 stories) for visual checks. 15 of 18 stories render; BookCard, FeaturesBar, and Header fail **(verified)**. See [Storybook](#62-storybook).
 
 | Story file | Story title |
 |---|---|
@@ -314,14 +278,14 @@ practice-one/
 │   ├── helpers/             # localStorage wrapper, form validator
 │   ├── layouts/PageLayout/  # Header + optional nav bar + <main> + delete ConfirmBox
 │   ├── pages/               # route-level pages: Home, Book, Add, Edit
-│   ├── services/            # axios client, generic ApiService, book-specific ApiRequest, API config
+│   ├── data/                # books.json seed data
+│   ├── services/            # ApiRequest facade + MockDb (localStorage persistence)
 │   └── stores/book/         # Context + useReducer: books, filters, display type, confirm-box state
 ├── index.html               # Vite HTML entry (title "Book Shelter")
-├── vite.config.ts           # port 3000, path aliases (@components, @services, …), env plugin
+├── vite.config.ts           # port 3000, path aliases (@components, @services, …)
 ├── tailwind.config.cjs      # custom colours, fonts, font sizes; class-based dark mode
 ├── tsconfig.json            # strict TS, baseUrl ./src, path aliases mirroring vite.config.ts
 ├── .eslintrc.json / .prettierrc.json / .editorconfig / commitlint.config.cjs
-├── .env.sample              # ROOT_URL template
 └── pnpm-lock.yaml           # pnpm lockfile (v5.4)
 ```
 
@@ -333,15 +297,13 @@ Import aliases (defined in both `tsconfig.json` and `vite.config.ts`): `@assets`
 
 ### Things that look broken
 
-1. **Search doesn't work.** `SearchBar` renders an `<Input>` with no `value` or `onChange`, and the store has `searchInput` state but no action that ever sets it. `title_like` is therefore never sent.
+1. **Search doesn't work.** `SearchBar` renders an `<Input>` with no `value` or `onChange`, and the store has `searchInput` state but no action that ever sets it. `ApiRequest` supports title filtering, but it never receives a search text.
 2. **Category isn't pre-selected when editing.** `common/Select` accepts `value` but never passes it to `<select>`, so the dropdown always shows the first option (Adventure). The form state itself does hold the correct category.
 3. **Storybook doesn't start as documented in the README (verified on Node 22):**
    - Plain `pnpm storybook` crashes with `ERR_OSSL_EVP_UNSUPPORTED`. It needs `NODE_OPTIONS=--openssl-legacy-provider`.
    - `.storybook/main.cjs` lists the addon `storybook-addon-react-router-v6`, but it's **not installed** (not in `package.json`, the lockfile, or `node_modules`). This is non-fatal: Storybook starts anyway with a preset-load warning.
    - 3 stories (`BookCard`, `FeaturesBar`, `Header`) fail with `useHref() may be used only in the context of a <Router>`.
    - `FeaturesBar`/`FilterPanel` stories depend on `BookContext` without a provider. `FilterPanel` renders, but clicking a category would call an `undefined` setter **(inferred)**.
-3a. **`ROOT_URL` is effectively mandatory.** Without it, dev shows no data and a production build crashes on load **(verified)**.
-3b. **The dev server exposes the entire shell environment** to the browser via `/@vite/env` (`EnvironmentPlugin('all')`) **(verified)**. See [Environment variables](#5-environment-variables).
 4. **Husky hooks aren't executable.** `.husky/pre-commit` and `.husky/commit-msg` have mode `-rw-rw-r--`, so git will skip them **(inferred)**.
 5. **`src/vite-env.d.ts` has stray lines:** `export function isV4(): boolean;` and `export { v4 } from './uuid';`. There's no `./uuid` file. **It doesn't break the build:** `tsc` passes **(verified)**, most likely because `skipLibCheck: true` skips `.d.ts` files. It's still dead and misleading code.
 5a. **Lint breaks after a build.** ESLint has no ignore for `dist/`, so it lints the minified bundle **(verified)**. See [Linting](#9-linting--formatting).
@@ -360,12 +322,11 @@ Import aliases (defined in both `tsconfig.json` and `vite.config.ts`): `@assets`
 11. After create, update, or delete, the app does a **full page reload** (`window.location.assign('/')`) instead of client-side navigation or a state update.
 12. Errors are reported with `alert()`. If a request fails, the loading overlay is never cleared (`setLoading(false)` is skipped in the `catch` blocks).
 13. Form validation requires **every** field to be non-empty (including the optional `description`, `publishers`, and `country`), and the year must be a positive integer **(inferred from `checkValidForm` + `RegexValue`)**. Note that the year input's `onBlur` doesn't pass the year regex, so "Enter a valid year" is never shown.
-14. Category counts in the sidebar come from the full `/books` list loaded once on Home mount. They don't refresh after other filters change.
-15. `EnvironmentPlugin('all')`: the production bundle only gets referenced vars (`ROOT_URL`), but the **dev server exposes all of them** (see 3b) **(verified)**.
+14. Category counts in the sidebar come from the full book list loaded once on Home mount. They don't refresh after other filters change.
+15. Data is **per browser**: each browser profile keeps its own copy in `localStorage`, and seed changes only show up after a `version` bump or a storage reset.
 
 ### Open questions
 
-- **What is the backend?** json-server 0.17.4 is verified to be compatible, but is the author's `db.json` (with real seed data) available somewhere? What's the expected `ROOT_URL` for dev and for the Vercel deployment?
 - Which Node version did the author use? (pnpm 7 is now confirmed to work with the lockfile; Node 22 works for install, lint, and build.) Should an `engines` field / `packageManager: "pnpm@7.33.7"` be added?
 - Is there a deployed Vercel URL and project config somewhere?
 - Should `practice-one/` be committed to `claude-training` as-is, and should Husky manage hooks for the whole `claude-training` repo?
