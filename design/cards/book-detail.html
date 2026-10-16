@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Card · Book detail</title>
+<link rel="stylesheet" href="_shared/tokens.css">
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<script src="_shared/tailwind.config.js"></script>
+<script src="_shared/design.js"></script>
+</head>
+<body class="bg-canvas font-sans text-ink antialiased" data-spec="book-detail">
+<div id="states"></div>
+<script>
+  const D = Design;
+
+  const backLink = state =>
+    `<a href="home.html" class="${D.force(`inline-flex h-11 items-center gap-2 rounded-lg text-sm font-semibold text-muted transition-colors hover:text-ink ${D.focusRing}`, state)}">${D.icon('back')}All books</a>`;
+
+  function detailItem(label, value) {
+    return `<div class="bg-surface px-4 py-3">
+      <dt class="text-xs font-bold uppercase tracking-wider text-muted">${label}</dt>
+      <dd class="mt-1 font-semibold text-ink">${D.esc(value)}</dd>
+    </div>`;
+  }
+
+  function page(main) {
+    return `${D.header()}${D.container(main, 'pb-16 pt-4 sm:pt-6')}`;
+  }
+
+  function detail(b, { back, edit, del } = {}) {
+    return page(`${backLink(back)}
+      <main class="mt-4 flex flex-col items-center gap-8 md:flex-row md:items-start md:gap-14">
+        <div class="w-48 shrink-0 md:w-80">${D.cover(b, { alt: `Cover of ${b.title}` })}</div>
+        <div class="w-full min-w-0 max-w-2xl">
+          ${D.badge(b.category)}
+          <h1 class="mt-4 text-4xl font-extrabold tracking-tight text-ink">${D.esc(b.title)}</h1>
+          <p class="mt-2 text-lg text-muted">by <span class="font-semibold text-ink">${D.esc(b.author)}</span></p>
+          ${
+            b.description
+              ? `<p class="mt-6 max-w-prose text-lg leading-relaxed text-ink">${D.esc(b.description)}</p>`
+              : `<p class="mt-6 text-lg text-muted">No description yet.</p>`
+          }
+          <dl class="mt-8 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-line bg-line">
+            ${detailItem('Published', b.published)}${detailItem('Country', b.country)}${detailItem('Publisher', b.publishers)}${detailItem('Category', b.category)}
+          </dl>
+          <div class="mt-8 grid grid-cols-2 gap-3 sm:flex">
+            ${D.button({ label: 'Edit book', icon: 'edit', href: 'book-form.html', state: edit })}
+            ${D.button({ label: 'Delete', icon: 'trash', variant: 'danger-secondary', state: del, attrs: { 'aria-haspopup': 'dialog' } })}
+          </div>
+        </div>
+      </main>`);
+  }
+
+  const loading = page(`${backLink()}
+    <main class="mt-4 flex flex-col items-center gap-8 md:flex-row md:items-start md:gap-14" aria-busy="true">
+      <div class="w-48 shrink-0 md:w-80">${D.skeleton('aspect-cover w-full rounded-md')}</div>
+      <div class="w-full max-w-2xl">
+        ${D.skeleton('h-6 w-28 rounded-full')}${D.skeleton('mt-4 h-10 w-3/4')}${D.skeleton('mt-3 h-5 w-1/3')}
+        ${D.skeleton('mt-8 h-4 w-full')}${D.skeleton('mt-3 h-4 w-11/12')}${D.skeleton('mt-3 h-4 w-2/3')}
+        ${D.skeleton('mt-8 h-36 w-full rounded-xl')}
+      </div>
+    </main>`);
+
+  const notFound = page(`${backLink()}
+    <main>${D.emptyState({
+      icon: 'search',
+      title: "We couldn't find that book",
+      text: 'It may have been deleted, or the link is wrong.',
+      actions: D.button({ label: 'Back to all books', icon: 'back', variant: 'secondary', href: 'home.html' }),
+    })}</main>`);
+
+  const treasure = D.book('Treasure Island');
+
+  D.states([
+    { name: '1. Default', note: 'Treasure Island.', html: detail(treasure) },
+    { name: '2. Long content', note: 'The longest title in the seed data wraps to two lines.', html: detail(D.book('Around the World in Eighty Days')) },
+    {
+      name: '3. Missing cover and description',
+      note: 'Fallback cover tile and "No description yet." in muted text.',
+      html: detail({ ...treasure, thumbnail: '', description: '' }),
+    },
+    { name: '4. Loading', note: 'Skeletons instead of the full-screen spinner. main has aria-busy.', html: loading },
+    { name: '5. Not found', note: 'Unknown id, or the book was deleted. Replaces alert("Book not found").', html: notFound },
+    {
+      name: '6. Interaction states',
+      note: '"All books" link hovered, Edit book focused (keyboard), Delete hovered.',
+      html: detail(treasure, { back: 'hover', edit: 'focus', del: 'hover' }),
+    },
+  ]);
+</script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Card · Delete dialog</title>
+<link rel="stylesheet" href="_shared/tokens.css">
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<script src="_shared/tailwind.config.js"></script>
+<script src="_shared/design.js"></script>
+</head>
+<body class="bg-canvas font-sans text-ink antialiased" data-spec="delete-dialog">
+<div id="states"></div>
+<script>
+  const D = Design;
+
+  // The page behind the dialog. In the app the overlay is `fixed inset-0`; here it's `absolute` so each state stays in its own section.
+  const behind = `<div aria-hidden="true">${D.header()}${D.container(
+    `<ul class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-books sm:gap-x-6 sm:gap-y-9">${D.BOOKS.slice(0, 10).map(b => D.bookCard(b)).join('')}</ul>`,
+    'py-8',
+  )}</div>`;
+
+  let n = 0;
+  function dialog(book, { deleting, failed, focusCancel } = {}) {
+    const id = `dlg-${++n}`;
+    return `<div role="alertdialog" aria-modal="true" aria-labelledby="${id}-title" aria-describedby="${id}-desc" class="w-full max-w-md rounded-xl border border-line bg-surface p-6 shadow-popover">
+      <div class="flex gap-4">
+        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-danger-soft text-danger">${D.icon('trash')}</div>
+        <div class="min-w-0">
+          <h2 id="${id}-title" class="text-lg font-extrabold leading-snug text-ink">Delete “${D.esc(book.title)}”?</h2>
+          <p id="${id}-desc" class="mt-1 text-sm text-muted">This removes the book from your library. You can't undo this.</p>
+        </div>
+      </div>
+      ${failed ? `<div class="mt-5">${D.alertBox({ title: "We couldn't delete this book.", text: 'Try again in a moment.' })}</div>` : ''}
+      <div class="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+        ${D.button({ label: 'Cancel', variant: 'secondary', disabled: deleting, state: focusCancel ? 'focus' : undefined, cls: 'w-full sm:w-auto' })}
+        ${D.button({ label: failed ? 'Try again' : 'Delete book', variant: 'danger', loading: deleting, loadingLabel: 'Deleting…', cls: 'w-full sm:w-auto' })}
+      </div>
+    </div>`;
+  }
+
+  const scene = dlg =>
+    `<div class="relative overflow-hidden">${behind}<div class="absolute inset-0 flex items-start justify-center bg-black/60 px-4 pt-24 sm:items-center sm:pt-0">${dlg}</div></div>`;
+
+  const treasure = D.book('Treasure Island');
+
+  D.states([
+    { name: '1. Default', note: 'Opened from the home page. Cancel has focus (state 5 shows the ring).', html: scene(dialog(treasure)) },
+    { name: '2. Long title', note: 'The title wraps; the icon stays aligned to the first line.', html: scene(dialog(D.book('The Hound of the Baskervilles'))) },
+    { name: '3. Deleting', note: 'Delete shows a spinner and "Deleting…"; both buttons disabled.', html: scene(dialog(treasure, { deleting: true })) },
+    { name: '4. Delete failed', note: 'Inline alert; the dialog stays open and the button becomes "Try again".', html: scene(dialog(treasure, { failed: true })) },
+    { name: '5. Focus on open', note: 'Focus starts on Cancel, the safe choice. Esc, Cancel or a backdrop click closes and returns focus.', html: scene(dialog(treasure, { focusCancel: true })) },
+  ]);
+</script>
+</body>
+</html>
