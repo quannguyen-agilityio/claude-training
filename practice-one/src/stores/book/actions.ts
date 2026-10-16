@@ -10,6 +10,7 @@ export enum BookActionsType {
   SET_CURRENT_SORT_TYPE = 'set_current_sort_type',
   SET_SHOW_CONFIRM_BOX = 'set_show_confirm_box',
   SET_CURRENT_BOOK_ID = 'set_current_book_id',
+  SET_SEARCH_INPUT = 'set_search_input',
 }
 
 interface BookActionGetAllBooks {
@@ -47,6 +48,11 @@ interface BookActionSetCurrentBookId {
   currentBookId: string | undefined;
 }
 
+interface BookActionSetSearchInput {
+  type: typeof BookActionsType.SET_SEARCH_INPUT;
+  searchInput: string;
+}
+
 export type BookActions =
   | BookActionGetAllBooks
   | BookActionSetDisplayType
@@ -54,4 +60,5 @@ export type BookActions =
   | BookActionSetCurrentBooks
   | BookActionSetCurrentSortType
   | BookActionSetShowConfirmBox
-  | BookActionSetCurrentBookId;
+  | BookActionSetCurrentBookId
+  | BookActionSetSearchInput;
