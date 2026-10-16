@@ -1,0 +1,137 @@
+{
+  "version": 1,
+  "books": [
+    {
+      "id": "54a7e10e-f3f7-48b7-85a4-92b6363ad7aa",
+      "title": "Treasure Island",
+      "thumbnail": "https://covers.openlibrary.org/b/isbn/9780141321004-L.jpg",
+      "author": "Robert Louis Stevenson",
+      "published": 1883,
+      "description": "Young Jim Hawkins finds a treasure map and sails with the cunning Long John Silver in search of buried pirate gold.",
+      "category": "Adventure",
+      "publishers": "Cassell and Company",
+      "country": "United Kingdom"
+    },
+    {
+      "id": "b5ecd37f-51b4-4062-9d6a-e3d46a4ea700",
+      "title": "Around the World in Eighty Days",
+      "thumbnail": "https://covers.openlibrary.org/b/isbn/9780140449068-L.jpg",
+      "author": "Jules Verne",
+      "published": 1872,
+      "description": "Phileas Fogg wagers his fortune that he can circle the globe in eighty days, with his valet Passepartout at his side.",
+      "category": "Adventure",
+      "publishers": "Pierre-Jules Hetzel",
+      "country": "France"
+    },
+    {
+      "id": "3a124530-d7fc-4a5d-9657-85932c54604b",
+      "title": "The Kite Runner",
+      "thumbnail": "https://covers.openlibrary.org/b/isbn/9781594631931-L.jpg",
+      "author": "Khaled Hosseini",
+      "published": 2003,
+      "description": "A story of friendship, betrayal and redemption between two boys growing up in Kabul.",
+      "category": "Contemporary",
+      "publishers": "Riverhead Books",
+      "country": "United States"
+    },
+    {
+      "id": "6e89bf87-0374-4d0f-ba6b-0c78527ed3bc",
+      "title": "Normal People",
+      "thumbnail": "https://covers.openlibrary.org/b/isbn/9781984822178-L.jpg",
+      "author": "Sally Rooney",
+      "published": 2018,
+      "description": "Connell and Marianne drift together and apart through school and university in small-town Ireland and Dublin.",
+      "category": "Contemporary",
+      "publishers": "Faber & Faber",
+      "country": "Ireland"
+    },
+    {
+      "id": "2b1438ec-4d04-4068-b316-de2c786a34d6",
+      "title": "Pride and Prejudice",
+      "thumbnail": "https://covers.openlibrary.org/b/isbn/9780141439518-L.jpg",
+      "author": "Jane Austen",
+      "published": 1813,
+      "description": "Elizabeth Bennet and Mr. Darcy overcome pride, prejudice and their families on the way to love.",
+      "category": "Romance",
+      "publishers": "T. Egerton",
+      "country": "United Kingdom"
+    },
+    {
+      "id": "991f1c19-2d5c-47ad-98f2-a11d2a800d0d",
+      "title": "Jane Eyre",
+      "thumbnail": "https://covers.openlibrary.org/b/isbn/9780141441146-L.jpg",
+      "author": "Charlotte Brontë",
+      "published": 1847,
+      "description": "An orphaned governess falls for her brooding employer, Mr. Rochester, at mysterious Thornfield Hall.",
+      "category": "Romance",
+      "publishers": "Smith, Elder & Co.",
+      "country": "United Kingdom"
+    },
+    {
+      "id": "0670d435-acf2-404a-9631-d81ae59ed032",
+      "title": "The Hobbit",
+      "thumbnail": "https://covers.openlibrary.org/b/isbn/9780547928227-L.jpg",
+      "author": "J. R. R. Tolkien",
+      "published": 1937,
+      "description": "Bilbo Baggins is swept into a quest with thirteen dwarves to reclaim their treasure from the dragon Smaug.",
+      "category": "Fantasy",
+      "publishers": "George Allen & Unwin",
+      "country": "United Kingdom"
+    },
+    {
+      "id": "01754a7b-c071-43d7-8aa0-097d7e70087f",
+      "title": "A Wizard of Earthsea",
+      "thumbnail": "https://covers.openlibrary.org/b/isbn/9780547773742-L.jpg",
+      "author": "Ursula K. Le Guin",
+      "published": 1968,
+      "description": "A gifted young wizard, Ged, unleashes a shadow upon the world and must hunt it down.",
+      "category": "Fantasy",
+      "publishers": "Parnassus Press",
+      "country": "United States"
+    },
+    {
+      "id": "f1278288-4d19-490f-84ce-fca54e4b5bb5",
+      "title": "Nineteen Eighty-Four",
+      "thumbnail": "https://covers.openlibrary.org/b/isbn/9780451524935-L.jpg",
+      "author": "George Orwell",
+      "published": 1949,
+      "description": "Winston Smith quietly rebels against Big Brother in a totalitarian state that controls every thought.",
+      "category": "Dystopian",
+      "publishers": "Secker & Warburg",
+      "country": "United Kingdom"
+    },
+    {
+      "id": "5f474f2d-abc3-4066-a384-25725159b5a9",
+      "title": "The Handmaid's Tale",
+      "thumbnail": "https://covers.openlibrary.org/b/isbn/9780385490818-L.jpg",
+      "author": "Margaret Atwood",
+      "published": 1985,
+      "description": "In the theocratic Republic of Gilead, Offred is forced to bear children for the ruling class.",
+      "category": "Dystopian",
+      "publishers": "McClelland and Stewart",
+      "country": "Canada"
+    },
+    {
+      "id": "676d909e-5f89-4e0f-812a-0bd5a571b044",
+      "title": "The Hound of the Baskervilles",
+      "thumbnail": "https://covers.openlibrary.org/b/isbn/9780140437867-L.jpg",
+      "author": "Arthur Conan Doyle",
+      "published": 1902,
+      "description": "Sherlock Holmes investigates a legendary spectral hound haunting the Baskerville family on Dartmoor.",
+      "category": "Mystery",
+      "publishers": "George Newnes",
+      "country": "United Kingdom"
+    },
+    {
+      "id": "5814d7e8-84e8-4aed-8644-42ee3677fdae",
+      "title": "The Name of the Rose",
+      "thumbnail": "https://covers.openlibrary.org/b/isbn/9780156001311-L.jpg",
+      "author": "Umberto Eco",
+      "published": 1980,
+      "description": "A Franciscan friar investigates a series of deaths in a remote 14th-century Italian abbey.",
+      "category": "Mystery",
+      "publishers": "Bompiani",
+      "country": "Italy"
+    }
+  ]
+}
