@@ -1,36 +1,45 @@
-import React, { useContext } from 'react';
-import clsx from 'clsx';
-import { BookContext } from '@stores/book';
+import React from 'react';
 import { DisplayTypes } from '@enums/Filter';
-import BookCard from './BookCard';
+import BookCard, { Book } from './BookCard';
+import BookRow from './BookRow';
+import BookCardSkeleton from './BookCardSkeleton';
 
-const BookList: React.FC = () => {
-  const { currentBooks, displayType } = useContext(BookContext);
+export const GRID_STYLES = 'grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-books sm:gap-x-6 sm:gap-y-9';
 
-  const gridStyle = 'grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 pr-5 gap-x-8 gap-y-10';
-  const listStyle = 'pr-5 w-full';
+const SKELETON_COUNT = 10;
+
+interface BookListProps {
+  books: Book[];
+  displayType: DisplayTypes;
+}
+
+const BookList: React.FC<BookListProps> = ({ books, displayType }) => {
+  if (displayType === DisplayTypes.LIST) {
+    return (
+      <ul className="flex flex-col gap-3">
+        {books.map(book => (
+          <BookRow key={book.id} book={book} />
+        ))}
+      </ul>
+    );
+  }
 
   return (
-    <section
-      className={clsx(
-        'max-h-full h-fit py-4 overflow-y-auto',
-        displayType === DisplayTypes.GRID ? gridStyle : listStyle,
-      )}
-    >
-      {currentBooks.map(book => {
-        return (
-          <BookCard
-            key={book.id}
-            id={book.id}
-            title={book.title}
-            thumbnail={book.thumbnail}
-            author={book.author}
-            published={book.published}
-          />
-        );
-      })}
-    </section>
+    <ul className={GRID_STYLES}>
+      {books.map(book => (
+        <BookCard key={book.id} book={book} />
+      ))}
+    </ul>
   );
 };
+
+// Shown while the first load is in flight
+export const BookListSkeleton: React.FC = () => (
+  <ul className={GRID_STYLES} aria-busy="true">
+    {Array.from({ length: SKELETON_COUNT }, (_, index) => (
+      <BookCardSkeleton key={index} />
+    ))}
+  </ul>
+);
 
 export default BookList;

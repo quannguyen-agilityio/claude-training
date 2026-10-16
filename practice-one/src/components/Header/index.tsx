@@ -1,69 +1,38 @@
-import React, { useEffect, useState } from 'react';
-import { LocalStorage } from '@helpers/localStorage';
-import lightIconUrl from '@assets/images/icons/light.svg';
-import darkIconUrl from '@assets/images/icons/moon.svg';
-import hamburgerIconUrl from '@assets/images/icons/hamburger-menu.svg';
-import searchIconUrl from '@assets/images/icons/search.svg';
-import { StorageKeys } from '@enums/StorageKey';
-import { ThemeTypes } from '@enums/Theme';
-import { ButtonTypes } from '@enums/Button';
-import Button from '@components/common/Button';
-import SearchBar from '@components/Header/SearchBar';
+import React, { useContext } from 'react';
+import { BookContext } from '@stores/book';
+import { IconNames } from '@enums/Icon';
+import SearchField from '@components/common/SearchField';
+import ThemeToggle from '@components/common/ThemeToggle';
+import LinkButton from '@components/common/LinkButton';
 import Logo from './Logo';
 
 export interface HeaderProps {
-  isHome?: boolean;
-  hasMenu?: boolean;
-  onShowMenu?: () => void;
-  onShowSearchBar?: () => void;
+  // Only the home screen searches
+  showSearch?: boolean;
 }
 
-const setThemeInStorage = (theme: ThemeTypes) => {
-  LocalStorage.set(StorageKeys.THEME, theme);
-};
-
-const Header: React.FC<HeaderProps> = ({ isHome, hasMenu, onShowMenu, onShowSearchBar }) => {
-  const initThemeValue = LocalStorage.get(StorageKeys.THEME);
-
-  const [isDarkMode, toggleDarkMode] = useState<boolean>(initThemeValue === ThemeTypes.DARK);
-
-  useEffect(() => {
-    const htmlElement = document.documentElement;
-
-    if (isDarkMode) {
-      htmlElement.classList.add('dark');
-      setThemeInStorage(ThemeTypes.DARK);
-    } else {
-      htmlElement.removeAttribute('class');
-      setThemeInStorage(ThemeTypes.LIGHT);
-    }
-  }, [isDarkMode]);
+const Header: React.FC<HeaderProps> = ({ showSearch }) => {
+  const { searchInput, setSearchInput } = useContext(BookContext);
 
   return (
-    <header className="relative h-[77px] bg-white dark:bg-black py-2 md:py-3 px-[21px] border-b border-athens-gray">
-      <div className="h-full flex justify-between items-center max-w-[1260px] pl-[50px] my-0 mx-auto">
-        {hasMenu ? (
-          <div className="absolute left-7 flex items-center sm:hidden">
-            <Button variant={ButtonTypes.CIRCLE} iconUrl={hamburgerIconUrl} onClick={onShowMenu} />
+    <header className="border-b border-line bg-surface">
+      <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-6 gap-y-3 px-4 py-3 sm:px-6">
+        <Logo />
+        {showSearch ? (
+          <div className="order-last w-full sm:order-none sm:w-auto sm:max-w-xl sm:flex-1">
+            <SearchField
+              value={searchInput}
+              onChange={setSearchInput}
+              label="Search books by title"
+              placeholder="Search by title"
+            />
           </div>
         ) : null}
-        <Logo />
-        {isHome ? (
-          <>
-            <div className="hidden sm:flex items-center w-full max-w-[670px] ml-44 mr-[75px]">
-              <SearchBar />
-            </div>
-            <div className="absolute left-36 flex items-center sm:hidden">
-              <Button variant={ButtonTypes.CIRCLE} iconUrl={searchIconUrl} onClick={onShowSearchBar} />
-            </div>
-          </>
-        ) : null}
-        <div>
-          <Button
-            variant={ButtonTypes.CIRCLE}
-            iconUrl={isDarkMode ? darkIconUrl : lightIconUrl}
-            onClick={() => toggleDarkMode(!isDarkMode)}
-          />
+        <div className="ml-auto flex items-center gap-2">
+          <ThemeToggle />
+          <LinkButton to="/add-new-book" icon={IconNames.PLUS} className="max-sm:w-11 max-sm:px-0">
+            <span className="max-sm:sr-only">Add book</span>
+          </LinkButton>
         </div>
       </div>
     </header>

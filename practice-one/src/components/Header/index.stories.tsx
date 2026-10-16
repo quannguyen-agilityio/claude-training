@@ -1,14 +1,30 @@
 import { ComponentMeta, ComponentStory } from '@storybook/react';
+import { MemoryRouter } from 'react-router-dom';
+import { BookProvider } from '@stores/book';
 import Header from '.';
 
 export default {
   title: 'components/Header',
   component: Header,
-  parameters: {
-    actions: {
-      handles: ['click'],
-    },
-  },
+  decorators: [
+    Story => (
+      <MemoryRouter>
+        <BookProvider>
+          <Story />
+        </BookProvider>
+      </MemoryRouter>
+    ),
+  ],
 } as ComponentMeta<typeof Header>;
 
-export const Template: ComponentStory<typeof Header> = args => <Header {...args} />;
+const Template: ComponentStory<typeof Header> = args => <Header {...args} />;
+
+export const Home = Template.bind({});
+Home.args = {
+  showSearch: true,
+};
+
+export const WithoutSearch = Template.bind({});
+WithoutSearch.args = {
+  showSearch: false,
+};
