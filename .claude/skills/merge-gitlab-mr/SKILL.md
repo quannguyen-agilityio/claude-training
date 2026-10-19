@@ -162,7 +162,7 @@ There's no CI in this repo (`.gitlab-ci.yml` is absent), so this local check is 
 Then run these in `$WT/practice-one`:
 
 1. **Static:** `rm -rf dist && pnpm --config.verify-deps-before-run=false lint:eslint`, then `pnpm --config.verify-deps-before-run=false build`, then `rm -rf dist`. No new ESLint errors or warnings compared with `origin/<target>`'s baseline (step 3.1, or run it now), and the build passes.
-2. **Runtime smoke:** run it if the MR changes runtime code under `src/`. Use the throwaway json-server mock and the dev server exactly as in `/resolve-gitlab-issue` step 6 (scratchpad `db.json`, `json-server@0.17.4` on 3001, `ROOT_URL=http://localhost:3001`, headless `google-chrome` / puppeteer-core installed in the scratchpad). Run the dev server from `$WT/practice-one`.
+2. **Runtime smoke:** run it if the MR changes runtime code under `src/`. Start the dev server and drive it with the Playwright MCP tools exactly as in `/resolve-gitlab-issue` step 6 (no backend, http://localhost:3000, `--isolated` browser). Run the dev server from `$WT/practice-one`.
    - Re-run the MR's "How it was tested" steps from its description, and confirm they still hold on the merged code.
    - If there were conflicts, also exercise the target-side feature that conflicted.
    - Check the console for new errors.
@@ -219,5 +219,5 @@ Verify with `glab api "projects/:id/merge_requests/<iid>"`: `state: merged`, and
    - A one-line test summary.
    - The linked issues' state.
    - Whether the remote source branch was deleted (or why it was kept).
-2. Check that the user's branch and `git status --porcelain` match step 1.5, that `git worktree list` shows no leftover worktree, and that no dev server, json-server or Storybook process is still running.
+2. Check that the user's branch and `git status --porcelain` match step 1.5, that `git worktree list` shows no leftover worktree, and that no dev server or Storybook process is still running.
 3. If the MR came from `docs/likely-bugs.md` (the issue says `Source: docs/likely-bugs.md #<n>`), suggest marking that entry fixed with a `- **Merged:** <MR url>` line. Don't edit it yourself.
