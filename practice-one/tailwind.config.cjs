@@ -11,13 +11,6 @@ module.exports = {
       fontFamily: {
         sans: ['Manrope', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
-      // Legacy sizes for the screens that are not refreshed yet
-      fontSize: {
-        primary: ['14px', '17px'],
-        secondary: ['13px', '15px'],
-        tertiary: ['12px', '14px'],
-        paragraph: ['15px', '25px'],
-      },
       colors: {
         canvas: token('canvas'),
         surface: token('surface'),
