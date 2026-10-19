@@ -10,11 +10,11 @@ import { CATEGORIES } from '@constants/Category';
 import RegexValue from '@constants/RegexValue';
 import Button from '@components/common/Button';
 import LinkButton from '@components/common/LinkButton';
-import Input from '@components/common/Input';
-import Textarea from '@components/common/Textarea';
+import TextField from '@components/common/TextField';
+import TextAreaField from '@components/common/TextAreaField';
 import Loading from '@components/common/Loading';
 import validateInput from '@helpers/validator';
-import Select from '@components/common/Select';
+import SelectField from '@components/common/SelectField';
 
 interface BookFormProps {
   formTitle: string;
@@ -136,77 +136,74 @@ const BookForm: React.FC<BookFormProps> = ({ formTitle }) => {
         onSubmit={handleSubmit}
       >
         <h2 className="text-2xl dark:text-white text-center mb-8">{formTitle}</h2>
-        <Input
-          type="text"
-          value={formData.title}
-          label="Title"
-          name="title"
-          errorMsg={errors.title}
-          onChange={handleChange}
-          onBlur={handleBlur}
-        />
-        <Input
-          type="text"
-          value={formData.thumbnail}
-          label="Thumbnail URL"
-          name="thumbnail"
-          errorMsg={errors.thumbnail}
-          onChange={handleChange}
-          onBlur={e => handleBlur(e, RegexValue.URL, ErrorMsgs.INVALID_URL)}
-        />
-        <Input
-          type="text"
-          value={formData.author}
-          label="Author"
-          name="author"
-          errorMsg={errors.author}
-          onChange={handleChange}
-          onBlur={handleBlur}
-        />
-        <Input
-          type="number"
-          value={formData.published}
-          label="Release Year"
-          name="published"
-          errorMsg={errors.published}
-          onChange={handleChange}
-          onBlur={handleBlur}
-        />
-        <Input
-          type="text"
-          value={formData.publishers}
-          label="Publishers"
-          name="publishers"
-          errorMsg={errors.publishers}
-          onChange={handleChange}
-          onBlur={handleBlur}
-        />
-        <Select value={formData.category} label="Category" name="category" onChange={handleChange}>
-          {CATEGORIES.map(category => {
-            return (
-              <option key={category} value={category}>
-                {category}
-              </option>
-            );
-          })}
-        </Select>
-        <Input
-          type="text"
-          value={formData.country}
-          label="Country"
-          name="country"
-          errorMsg={errors.country}
-          onChange={handleChange}
-          onBlur={handleBlur}
-        />
-        <Textarea
-          value={formData.description}
-          label="Description"
-          name="description"
-          errorMsg={errors.description}
-          onChange={handleChange}
-          onBlur={handleBlur}
-        />
+        <div className="mb-8 flex flex-col gap-6">
+          <TextField
+            value={formData.title}
+            label="Title"
+            name="title"
+            error={errors.title}
+            onChange={handleChange}
+            onBlur={handleBlur}
+          />
+          <TextField
+            value={formData.thumbnail}
+            label="Thumbnail URL"
+            name="thumbnail"
+            error={errors.thumbnail}
+            onChange={handleChange}
+            onBlur={e => handleBlur(e, RegexValue.URL, ErrorMsgs.INVALID_URL)}
+          />
+          <TextField
+            value={formData.author}
+            label="Author"
+            name="author"
+            error={errors.author}
+            onChange={handleChange}
+            onBlur={handleBlur}
+          />
+          <TextField
+            type="number"
+            value={formData.published}
+            label="Release Year"
+            name="published"
+            error={errors.published}
+            onChange={handleChange}
+            onBlur={handleBlur}
+          />
+          <TextField
+            value={formData.publishers}
+            label="Publishers"
+            name="publishers"
+            error={errors.publishers}
+            onChange={handleChange}
+            onBlur={handleBlur}
+          />
+          <SelectField value={formData.category} label="Category" name="category" onChange={handleChange}>
+            {CATEGORIES.map(category => {
+              return (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              );
+            })}
+          </SelectField>
+          <TextField
+            value={formData.country}
+            label="Country"
+            name="country"
+            error={errors.country}
+            onChange={handleChange}
+            onBlur={handleBlur}
+          />
+          <TextAreaField
+            value={formData.description}
+            label="Description"
+            name="description"
+            error={errors.description}
+            onChange={handleChange}
+            onBlur={handleBlur}
+          />
+        </div>
         <div className="w-full flex justify-center gap-2">
           <Button type="submit">Submit</Button>
           <LinkButton to="/" variant={ButtonVariants.SECONDARY}>

@@ -29,7 +29,7 @@ const SearchField: React.FC<SearchFieldProps> = ({ value, onChange, label, place
         value={value}
         placeholder={placeholder}
         onChange={event => onChange(event.target.value)}
-        className={clsx(FIELD_STYLES, 'h-11 pl-10 [&::-webkit-search-cancel-button]:appearance-none', value && 'pr-12')}
+        className={clsx(FIELD_STYLES.base, FIELD_STYLES.ok, 'h-11 pl-10 [&::-webkit-search-cancel-button]:appearance-none', value && 'pr-12')}
       />
       {value ? (
         <span className="absolute inset-y-0 right-0 flex items-center">
