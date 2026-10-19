@@ -1,0 +1,40 @@
+# The app lives in practice-one/; every job runs from there.
+image: node:22
+
+stages:
+  - lint
+  - build
+
+variables:
+  # Husky's `prepare` script only installs local git hooks; skip it in CI.
+  HUSKY: '0'
+
+.pnpm:
+  before_script:
+    - cd practice-one
+    # pnpm version comes from `packageManager` in package.json
+    - corepack enable
+    - pnpm install --frozen-lockfile --store-dir .pnpm-store
+  cache:
+    key:
+      files:
+        - practice-one/pnpm-lock.yaml
+    paths:
+      - practice-one/.pnpm-store
+
+lint:
+  extends: .pnpm
+  stage: lint
+  script:
+    - pnpm lint:eslint
+
+build:
+  extends: .pnpm
+  stage: build
+  needs: []
+  script:
+    - pnpm build
+  artifacts:
+    paths:
+      - practice-one/dist/
+    expire_in: 1 week
