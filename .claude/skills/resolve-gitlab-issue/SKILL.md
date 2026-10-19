@@ -118,11 +118,11 @@ All of these must pass before pushing. Save the output and screenshots to the sc
 
 1. **Static:** `rm -rf dist && pnpm --config.verify-deps-before-run=false lint:eslint`, then `pnpm --config.verify-deps-before-run=false build`, then `rm -rf dist`. ESLint must show no new errors or warnings compared with the baseline, and the build must succeed.
 2. **Runtime repro:** follow the issue's Steps to reproduce on the fixed code and confirm the Expected behaviour.
-   - There's usually no backend. Start a throwaway mock in the scratchpad: a `db.json` with a few `books` (fields from `Book` in `src/components/BookList/BookCard`), served with `pnpm dlx json-server@0.17.4 --watch db.json --port 3001` (v0.17 supports `title_like`, `_sort` and `category=`). Point the app at it with `ROOT_URL=http://localhost:3001 pnpm --config.verify-deps-before-run=false dev`. Don't create or edit `.env`.
-   - Drive the page with the `claude-in-chrome` skill or headless `google-chrome`. Check the visible result and the network requests (e.g. that the right query string is sent). Take one screenshot of the fixed behaviour. Check the console for new errors.
+   - No backend is needed: data comes from `MockDb` (seeded from `src/data/books.json`, persisted to `localStorage`). Start the app with `pnpm --config.verify-deps-before-run=false dev` (http://localhost:3000). Don't create or edit `.env`.
+   - Drive the page with the Playwright MCP tools (`browser_navigate`, `browser_snapshot`, `browser_click`, `browser_type`…). The server runs `--isolated`, so every session starts from the seed data. Check the visible result, take one screenshot of the fixed behaviour with `browser_take_screenshot`, and check `browser_console_messages` for new errors. Fall back to the `claude-in-chrome` skill if Playwright isn't connected.
    - Also check neighbouring behaviour the change could break (e.g. for search: category filter and sort still work, clearing the box restores the full list, the mobile search bar works too).
 3. **Storybook:** only if you changed a component that has a story. Run `NODE_OPTIONS=--openssl-legacy-provider pnpm --config.verify-deps-before-run=false storybook` and open the affected stories. Some stories are already broken (likely-bugs #9). Only regressions count.
-4. Stop every server you started (the dev server, json-server, Storybook) and delete `dist/`.
+4. Stop every server you started (the dev server, Storybook), run `browser_close`, and delete `dist/`.
 
 If something fails, fix it with a new commit (or amend the commit that caused it, since nothing has been pushed yet) and repeat this step. If you can't get it green, **don't push**. Report what fails and leave the branch local.
 
@@ -182,5 +182,5 @@ End the MR description with the pull request attribution line the session requir
 ## 8. Wrap up
 
 1. Report the MR URL, the branch, the commits, and a one-line test summary.
-2. Switch back to the branch the user started on (`git switch <original>`). Check that `git status` matches what it was in step 1, and that no dev server, json-server or Storybook process is still running.
+2. Switch back to the branch the user started on (`git switch <original>`). Check that `git status` matches what it was in step 1, and that no dev server or Storybook process is still running.
 3. If the issue came from `docs/likely-bugs.md`, suggest adding a `- **MR:** <url>` line under that entry. Don't edit it on the fix branch.

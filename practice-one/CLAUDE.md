@@ -11,6 +11,7 @@ pnpm lint:eslint    # fix:eslint to autofix (pre-commit runs it)
 pnpm storybook      # :6006
 ```
 There is no test suite. To check a change, run `pnpm build`, `pnpm lint:eslint`, then use it in `pnpm dev`.
+To check UI changes, drive the dev server with the Playwright MCP server (`../.mcp.json`; headless, isolated profile, so every session starts from the seed data). Check the page, screenshots and console messages.
 
 ## Conventions
 - One component per folder: `Name/index.tsx` plus `index.stories.tsx` for any new visual component. Shared primitives go in `components/common/`.
