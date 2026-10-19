@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ComponentMeta, ComponentStory } from '@storybook/react';
 import warningIcon from '@assets/images/icons/warning.svg';
-import { ButtonTypes } from '@enums/Button';
+import { ButtonVariants } from '@enums/Button';
 import Modal from '.';
 import Button from '../Button';
 
@@ -26,17 +26,17 @@ export const ConfirmModal: ComponentStory<typeof Modal> = args => {
 
   return (
     <>
-      <Button variant={ButtonTypes.WARNING} onClick={() => setShowModal(true)}>
+      <Button variant={ButtonVariants.DANGER} onClick={() => setShowModal(true)}>
         Delete
       </Button>
       {showModal ? (
         <Modal {...args}>
           <p>You will not be able to recover this action!</p>
           <div className="flex gap-[50px]">
-            <Button variant={ButtonTypes.SECONDARY} onClick={() => setShowModal(false)}>
+            <Button variant={ButtonVariants.SECONDARY} onClick={() => setShowModal(false)}>
               Cancel
             </Button>
-            <Button variant={ButtonTypes.WARNING} onClick={() => alert('Confirm Delete')}>
+            <Button variant={ButtonVariants.DANGER} onClick={() => alert('Confirm Delete')}>
               Delete
             </Button>
           </div>

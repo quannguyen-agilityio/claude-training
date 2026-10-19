@@ -1,14 +1,15 @@
 import React, { useState, FormEvent, useEffect } from 'react';
 import { ApiRequest } from '@services/api-request';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { v4 as generateUUID } from 'uuid';
 import { CategoryTitle } from '@enums/Category';
-import { ButtonTypes } from '@enums/Button';
+import { ButtonVariants } from '@enums/Button';
 import { Book } from '@components/BookList/BookCard';
 import { ErrorMsgs } from '@enums/ErrorMsg';
 import { CATEGORIES } from '@constants/Category';
 import RegexValue from '@constants/RegexValue';
 import Button from '@components/common/Button';
+import LinkButton from '@components/common/LinkButton';
 import Input from '@components/common/Input';
 import Textarea from '@components/common/Textarea';
 import Loading from '@components/common/Loading';
@@ -207,12 +208,10 @@ const BookForm: React.FC<BookFormProps> = ({ formTitle }) => {
           onBlur={handleBlur}
         />
         <div className="w-full flex justify-center gap-2">
-          <Button type="submit" variant={ButtonTypes.PRIMARY}>
-            Submit
-          </Button>
-          <Link to="/">
-            <Button variant={ButtonTypes.SECONDARY}>Cancel</Button>
-          </Link>
+          <Button type="submit">Submit</Button>
+          <LinkButton to="/" variant={ButtonVariants.SECONDARY}>
+            Cancel
+          </LinkButton>
         </div>
       </form>
     </>

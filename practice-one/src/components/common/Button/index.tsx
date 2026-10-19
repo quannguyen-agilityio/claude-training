@@ -1,45 +1,53 @@
-import React, { ButtonHTMLAttributes } from 'react';
+import React, { ButtonHTMLAttributes, ReactNode } from 'react';
 import clsx from 'clsx';
-import { ButtonTypes } from '@enums/Button';
+import { ButtonVariants } from '@enums/Button';
+import { IconNames } from '@enums/Icon';
+import { BUTTON_STYLES } from '@constants/Styles';
+import Icon from '@components/common/Icon';
+import Spinner from '@components/common/Spinner';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant: ButtonTypes;
-  children?: string;
-  iconUrl?: string;
-  hasBorder?: boolean;
+  children: ReactNode;
+  variant?: ButtonVariants;
+  icon?: IconNames;
+  loading?: boolean;
+  // Shown with the spinner while loading, e.g. "Saving…". Defaults to the children
+  loadingLabel?: string;
 }
 
-const buttonStyles: { [index: string]: string } = {
-  primary: 'bg-azure-radiance text-white',
-  secondary: 'bg-link-water text-comet',
-  tertiary: 'bg-white text-comet',
-  warning: 'bg-warning text-white',
-  circle: `w-10 h-10 rounded-full flex justify-center items-center hover:bg-slate-200 
-  aria-checked:bg-link-water aria-checked:border-none dark:bg-link-water dark:hover:bg-blue-yonder dark:aria-checked:bg-blue-yonder`,
-};
+const STACK = 'col-start-1 row-start-1 inline-flex items-center justify-center gap-2';
 
-const Button: React.FC<ButtonProps> = ({ children, onClick, iconUrl, variant, hasBorder, type, ...rest }) => {
-  const commonStyle = `min-w-[116px] h-[45px] rounded-[30px] text-primary flex justify-center items-center 
-  gap-2.5 p-4 hover:opacity-80 active:translate-y-px`;
-
-  const checkBorder = () => {
-    return hasBorder ? 'border border-athens-gray' : null;
-  };
-
-  const classFilter = (type: typeof variant) => {
-    if (type === ButtonTypes.CIRCLE) {
-      return buttonStyles[type];
-    }
-
-    return clsx(commonStyle, buttonStyles[type]);
-  };
-
-  return (
-    <button type={type} className={clsx(checkBorder(), classFilter(variant))} onClick={onClick} {...rest}>
-      {iconUrl && <img src={iconUrl} alt="Icon" />}
-      {children}
-    </button>
-  );
-};
+const Button: React.FC<ButtonProps> = ({
+  children,
+  variant = ButtonVariants.PRIMARY,
+  icon,
+  loading = false,
+  loadingLabel,
+  disabled,
+  className,
+  type = 'button',
+  ...rest
+}) => (
+  <button
+    type={type}
+    className={clsx(BUTTON_STYLES[variant], className)}
+    disabled={disabled || loading}
+    aria-busy={loading || undefined}
+    {...rest}
+  >
+    {/* Both contents share one grid cell, so the button keeps its width when it starts loading.
+        The hidden one is visibility: hidden, which also hides it from screen readers */}
+    <span className="grid">
+      <span className={clsx(STACK, loading && 'invisible')}>
+        {icon ? <Icon name={icon} /> : null}
+        {children}
+      </span>
+      <span className={clsx(STACK, !loading && 'invisible')}>
+        <Spinner />
+        {loadingLabel ?? children}
+      </span>
+    </span>
+  </button>
+);
 
 export default Button;

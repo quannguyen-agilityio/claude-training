@@ -10,6 +10,7 @@ const PATHS: Record<IconNames, ReactElement> = {
       <path d="M12 8v4M12 16h.01" />
     </>
   ),
+  [IconNames.BACK]: <path d="M19 12H5M12 19l-7-7 7-7" />,
   [IconNames.BOOK]: (
     <>
       <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z" />
