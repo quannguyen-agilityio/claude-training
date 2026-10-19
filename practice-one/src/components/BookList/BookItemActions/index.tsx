@@ -10,17 +10,16 @@ interface BookItemActionsProps {
 
 // Always visible (not only on hover), labeled with the book title
 const BookItemActions: React.FC<BookItemActionsProps> = ({ id, title }) => {
-  const { setShowConfirmBox, setCurrentBookId } = useContext(BookContext);
+  const { setBookToDelete } = useContext(BookContext);
 
   const handleDelete = () => {
-    setCurrentBookId(id);
-    setShowConfirmBox(true);
+    setBookToDelete({ id, title });
   };
 
   return (
     <div className="-mr-2 flex shrink-0">
       <IconButton to={`/edit-book/${id}`} icon={IconNames.EDIT} label={`Edit ${title}`} />
-      <IconButton icon={IconNames.TRASH} label={`Delete ${title}`} onClick={handleDelete} />
+      <IconButton icon={IconNames.TRASH} label={`Delete ${title}`} aria-haspopup="dialog" onClick={handleDelete} />
     </div>
   );
 };

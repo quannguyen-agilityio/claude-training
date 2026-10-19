@@ -13,11 +13,11 @@ import BookDetailSkeleton from '@components/BookDetail/BookDetailSkeleton';
 import BackLink from '@components/common/BackLink';
 import EmptyState from '@components/common/EmptyState';
 import LinkButton from '@components/common/LinkButton';
-import ConfirmBox from '@components/ConfirmBox';
+import DeleteDialog from '@components/DeleteDialog';
 
 const BookPage: React.FC = () => {
   const { bookId } = useParams();
-  const { showConfirmBox, setShowConfirmBox, setCurrentBookId } = useContext(BookContext);
+  const { bookToDelete, setBookToDelete } = useContext(BookContext);
 
   const [book, setBook] = useState<Book>();
   const [status, setStatus] = useState<LoadStatus>(LoadStatus.LOADING);
@@ -48,11 +48,6 @@ const BookPage: React.FC = () => {
     };
   }, [bookId]);
 
-  const handleDelete = () => {
-    setCurrentBookId(bookId);
-    setShowConfirmBox(true);
-  };
-
   const renderContent = (): ReactNode => {
     if (status === LoadStatus.LOADING) return <BookDetailSkeleton />;
 
@@ -71,7 +66,7 @@ const BookPage: React.FC = () => {
       );
     }
 
-    return <BookDetail book={book} onDelete={handleDelete} />;
+    return <BookDetail book={book} onDelete={() => setBookToDelete({ id: book.id, title: book.title })} />;
   };
 
   return (
@@ -83,7 +78,7 @@ const BookPage: React.FC = () => {
           {renderContent()}
         </main>
       </Container>
-      {showConfirmBox ? <ConfirmBox /> : null}
+      {bookToDelete ? <DeleteDialog book={bookToDelete} /> : null}
     </>
   );
 };

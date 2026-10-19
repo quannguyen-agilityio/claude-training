@@ -1,7 +1,7 @@
 import React, { ReactNode, useContext } from 'react';
 import Header from '@components/Header';
 import clsx from 'clsx';
-import ConfirmBox from '@components/ConfirmBox';
+import DeleteDialog from '@components/DeleteDialog';
 import { BookContext } from '@stores/book';
 
 interface LayoutProps {
@@ -10,7 +10,7 @@ interface LayoutProps {
 }
 
 const PageLayout: React.FC<LayoutProps> = ({ children, navBar }) => {
-  const { showConfirmBox } = useContext(BookContext);
+  const { bookToDelete } = useContext(BookContext);
 
   return (
     <>
@@ -24,7 +24,7 @@ const PageLayout: React.FC<LayoutProps> = ({ children, navBar }) => {
       >
         {children}
       </main>
-      {showConfirmBox ? <ConfirmBox /> : null}
+      {bookToDelete ? <DeleteDialog book={bookToDelete} /> : null}
     </>
   );
 };

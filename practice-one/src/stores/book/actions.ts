@@ -8,8 +8,7 @@ export enum BookActionsType {
   SET_CURRENT_CATEGORY = 'set_current_category',
   SET_CURRENT_BOOKS = 'set_current_books',
   SET_CURRENT_SORT_TYPE = 'set_current_sort_type',
-  SET_SHOW_CONFIRM_BOX = 'set_show_confirm_box',
-  SET_CURRENT_BOOK_ID = 'set_current_book_id',
+  SET_BOOK_TO_DELETE = 'set_book_to_delete',
   SET_SEARCH_INPUT = 'set_search_input',
 }
 
@@ -38,14 +37,12 @@ interface BookActionSetCurrentSortType {
   currentSortType: SortType;
 }
 
-interface BookActionSetShowConfirmBox {
-  type: typeof BookActionsType.SET_SHOW_CONFIRM_BOX;
-  showConfirmBox: boolean;
-}
+// The delete dialog is open while this is set
+export type BookToDelete = Pick<Book, 'id' | 'title'>;
 
-interface BookActionSetCurrentBookId {
-  type: typeof BookActionsType.SET_CURRENT_BOOK_ID;
-  currentBookId: string | undefined;
+interface BookActionSetBookToDelete {
+  type: typeof BookActionsType.SET_BOOK_TO_DELETE;
+  bookToDelete: BookToDelete | undefined;
 }
 
 interface BookActionSetSearchInput {
@@ -59,6 +56,5 @@ export type BookActions =
   | BookActionSetCurrentCategory
   | BookActionSetCurrentBooks
   | BookActionSetCurrentSortType
-  | BookActionSetShowConfirmBox
-  | BookActionSetCurrentBookId
+  | BookActionSetBookToDelete
   | BookActionSetSearchInput;
