@@ -21,4 +21,9 @@ export const ICON_BUTTON_STYLES: Record<IconButtonVariants, string> = {
   [IconButtonVariants.SECONDARY]: `${ICON_BUTTON_BASE} border border-line-strong bg-surface text-ink hover:bg-raised`,
 };
 
-export const FIELD_STYLES = 'block w-full rounded-lg border border-line-strong bg-surface px-3 text-base text-ink placeholder:text-muted transition-colors hover:border-muted focus:border-focus focus:outline-none focus:ring-2 focus:ring-focus/30 disabled:cursor-not-allowed disabled:bg-raised disabled:opacity-60';
+export const FIELD_STYLES = {
+  base: 'block w-full rounded-lg border bg-surface px-3 text-base text-ink placeholder:text-muted transition-colors focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:bg-raised disabled:opacity-60',
+  ok: 'border-line-strong hover:border-muted focus:border-focus focus:ring-focus/30',
+  error: 'border-danger focus:border-danger focus:ring-danger/30',
+  label: 'mb-1.5 block text-sm font-semibold text-ink',
+};

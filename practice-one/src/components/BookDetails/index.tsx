@@ -13,7 +13,7 @@ const BookDetails: React.FC<BookDetailsProps> = ({ title, thumbnail, description
       <figure className="w-full h-full max-h-[45%] my-8 sm:px-[20%] rounded-[5px] flex justify-center items-center">
         <img src={thumbnail} alt="Book Thumbnail" className="w-full h-full object-cover" />
       </figure>
-      <p className="text-paragraph text-justify dark:text-white">{description}</p>
+      <p className="text-base leading-relaxed text-justify dark:text-white">{description}</p>
     </section>
   );
 };

@@ -1,8 +1,7 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import backIconUrl from '@assets/images/icons/back.svg';
-import Button from '@components/common/Button';
-import { ButtonTypes } from '@enums/Button';
+import { ButtonVariants } from '@enums/Button';
+import { IconNames } from '@enums/Icon';
+import LinkButton from '@components/common/LinkButton';
 import SubHeader from '@components/SubHeader';
 import BookActions from '@components/BookActions';
 
@@ -16,11 +15,9 @@ const BookBar: React.FC<BookBarProps> = ({ bookId }) => {
       <div className="relative w-full max-w-[1260px] flex justify-between items-center pl-10 pr-5 xl:pr-0">
         <SubHeader />
         <div className="flex gap-2">
-          <Link to="/">
-            <Button variant={ButtonTypes.SECONDARY} iconUrl={backIconUrl}>
-              Back
-            </Button>
-          </Link>
+          <LinkButton to="/" variant={ButtonVariants.SECONDARY} icon={IconNames.BACK}>
+            Back
+          </LinkButton>
           <BookActions bookId={bookId} />
         </div>
       </div>

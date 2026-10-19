@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import Modal from '@components/common/Modal';
 import Button from '@components/common/Button';
-import { ButtonTypes } from '@enums/Button';
+import { ButtonVariants } from '@enums/Button';
 import { BookContext } from '@stores/book';
 import warningIcon from '@assets/images/icons/warning.svg';
 import { ApiRequest } from '@services/api-request';
@@ -35,10 +35,10 @@ const ConfirmBox: React.FC = () => {
         <Modal title="Are you sure to delete this book?" iconUrl={warningIcon}>
           <p>You will not be able to recover this action!</p>
           <div className="flex gap-[50px]">
-            <Button variant={ButtonTypes.SECONDARY} onClick={() => setShowConfirmBox(false)}>
+            <Button variant={ButtonVariants.SECONDARY} onClick={() => setShowConfirmBox(false)}>
               Cancel
             </Button>
-            <Button variant={ButtonTypes.WARNING} onClick={handleClick}>
+            <Button variant={ButtonVariants.DANGER} onClick={handleClick}>
               Delete
             </Button>
           </div>

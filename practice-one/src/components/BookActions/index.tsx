@@ -1,10 +1,8 @@
 import React, { useContext } from 'react';
-import editIconUrl from '@assets/images/icons/edit.svg';
-import deleteIconUrl from '@assets/images/icons/delete.svg';
-import Button from '@components/common/Button';
-import { ButtonTypes } from '@enums/Button';
-import { Link } from 'react-router-dom';
 import { BookContext } from '@stores/book';
+import { IconButtonVariants } from '@enums/Button';
+import { IconNames } from '@enums/Icon';
+import IconButton from '@components/common/IconButton';
 
 interface BookActionsProp {
   bookId?: string;
@@ -20,10 +18,18 @@ const BookActions: React.FC<BookActionsProp> = ({ bookId }) => {
 
   return (
     <>
-      <Link to={`/edit-book/${bookId}`}>
-        <Button variant={ButtonTypes.CIRCLE} iconUrl={editIconUrl} hasBorder />
-      </Link>
-      <Button variant={ButtonTypes.CIRCLE} iconUrl={deleteIconUrl} hasBorder onClick={handleClick} />
+      <IconButton
+        variant={IconButtonVariants.SECONDARY}
+        icon={IconNames.EDIT}
+        label="Edit this book"
+        to={`/edit-book/${bookId}`}
+      />
+      <IconButton
+        variant={IconButtonVariants.SECONDARY}
+        icon={IconNames.TRASH}
+        label="Delete this book"
+        onClick={handleClick}
+      />
     </>
   );
 };

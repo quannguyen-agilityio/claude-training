@@ -1,5 +1,6 @@
 export enum IconNames {
   ALERT = 'alert',
+  BACK = 'back',
   BOOK = 'book',
   EDIT = 'edit',
   GRID = 'grid',
