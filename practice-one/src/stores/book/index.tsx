@@ -13,6 +13,7 @@ export interface BookContextType extends BookReducerState {
   setCurrentSortType: (type: SortType) => void;
   setShowConfirmBox: (value: boolean) => void;
   setCurrentBookId: (id?: string) => void;
+  setSearchInput: (value: string) => void;
 }
 
 const BookContext = createContext<BookContextType>(initValue);
@@ -69,6 +70,13 @@ const BookProvider = ({ children }: { children: ReactNode }): ReactElement => {
     });
   };
 
+  const setSearchInput = useCallback((value: string): void => {
+    dispatch({
+      type: BookActionsType.SET_SEARCH_INPUT,
+      searchInput: value,
+    });
+  }, []);
+
   const value: BookContextType = useMemo(
     () => ({
       books: state.books,
@@ -82,6 +90,7 @@ const BookProvider = ({ children }: { children: ReactNode }): ReactElement => {
       currentSortType: state.currentSortType,
       setCurrentSortType,
       searchInput: state.searchInput,
+      setSearchInput,
       showConfirmBox: state.showConfirmBox,
       setShowConfirmBox,
       currentBookId: state.currentBookId,
@@ -96,6 +105,7 @@ const BookProvider = ({ children }: { children: ReactNode }): ReactElement => {
       setCurrentBooks,
       state.currentSortType,
       state.searchInput,
+      setSearchInput,
       state.showConfirmBox,
       state.currentBookId,
     ],

@@ -70,5 +70,11 @@ export const BookReducer = (state: BookReducerState, action: BookActions) => {
         currentBookId: action.currentBookId,
       };
     }
+    case BookActionsType.SET_SEARCH_INPUT: {
+      return {
+        ...state,
+        searchInput: action.searchInput,
+      };
+    }
   }
 };

@@ -1,3 +1,7 @@
+// Role tokens from design/specs/foundations.md. Each one reads a CSS variable from src/index.css,
+// so the dark theme only swaps the variables and components need no `dark:` color classes
+const token = name => `rgb(var(--color-${name}) / <alpha-value>)`;
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: 'class',
@@ -5,21 +9,41 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        primary: 'Rubik',
-        secondary: 'NotoSans',
-        logo: 'DancingScript',
+        sans: ['Manrope', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
+      // Legacy sizes for the screens that are not refreshed yet
       fontSize: {
         primary: ['14px', '17px'],
         secondary: ['13px', '15px'],
         tertiary: ['12px', '14px'],
         paragraph: ['15px', '25px'],
-        md: ['16px', '19px'],
-        lg: ['18px', '22px'],
-        xl: ['25px', '28px'],
-        '2xl': ['36px', '43px'],
       },
       colors: {
+        canvas: token('canvas'),
+        surface: token('surface'),
+        raised: token('raised'),
+        line: { DEFAULT: token('line'), strong: token('line-strong') },
+        ink: token('ink'),
+        muted: token('muted'),
+        accent: {
+          DEFAULT: token('accent'),
+          hover: token('accent-hover'),
+          soft: token('accent-soft'),
+          ink: token('accent-ink'),
+        },
+        'on-accent': token('on-accent'),
+        danger: { DEFAULT: token('danger'), hover: token('danger-hover'), soft: token('danger-soft') },
+        'on-danger': token('on-danger'),
+        focus: token('focus'),
+        cat: {
+          adventure: token('cat-adventure'),
+          contemporary: token('cat-contemporary'),
+          romance: token('cat-romance'),
+          fantasy: token('cat-fantasy'),
+          dystopian: token('cat-dystopian'),
+          mystery: token('cat-mystery'),
+        },
+        // Legacy colors for the screens that are not refreshed yet
         black: '#000000',
         white: '#FFFFFF',
         comet: '#58667E',
@@ -32,6 +56,17 @@ module.exports = {
         'athens-gray': '#E3E6EB',
         'blue-bayoux': '#414e82',
         'blue-yonder': '#8892B9',
+      },
+      boxShadow: {
+        cover: 'var(--shadow-cover)',
+        'cover-lg': 'var(--shadow-cover-lg)',
+        popover: 'var(--shadow-popover)',
+      },
+      aspectRatio: {
+        cover: '2 / 3',
+      },
+      gridTemplateColumns: {
+        books: 'repeat(auto-fill, minmax(10rem, 1fr))',
       },
     },
   },

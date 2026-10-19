@@ -6,7 +6,7 @@ import { CategoryTitle } from '@enums/Category';
 import { ButtonTypes } from '@enums/Button';
 import { Book } from '@components/BookList/BookCard';
 import { ErrorMsgs } from '@enums/ErrorMsg';
-import { CATEGORIES } from '@components/FilterPanel';
+import { CATEGORIES } from '@constants/Category';
 import RegexValue from '@constants/RegexValue';
 import Button from '@components/common/Button';
 import Input from '@components/common/Input';
@@ -134,7 +134,7 @@ const BookForm: React.FC<BookFormProps> = ({ formTitle }) => {
         className="w-full py-10 px-7 sm:px-32 border-x bg-white overflow-y-auto dark:bg-black"
         onSubmit={handleSubmit}
       >
-        <h2 className="text-xl dark:text-white text-center mb-8">{formTitle}</h2>
+        <h2 className="text-2xl dark:text-white text-center mb-8">{formTitle}</h2>
         <Input
           type="text"
           value={formData.title}
@@ -183,8 +183,8 @@ const BookForm: React.FC<BookFormProps> = ({ formTitle }) => {
         <Select value={formData.category} label="Category" name="category" onChange={handleChange}>
           {CATEGORIES.map(category => {
             return (
-              <option key={category.title} value={category.title}>
-                {category.title}
+              <option key={category} value={category}>
+                {category}
               </option>
             );
           })}

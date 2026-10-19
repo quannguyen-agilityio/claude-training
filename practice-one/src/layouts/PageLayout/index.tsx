@@ -1,20 +1,20 @@
 import React, { ReactNode, useContext } from 'react';
-import Header, { HeaderProps } from '@components/Header';
+import Header from '@components/Header';
 import clsx from 'clsx';
 import ConfirmBox from '@components/ConfirmBox';
 import { BookContext } from '@stores/book';
 
-interface LayoutProps extends HeaderProps {
+interface LayoutProps {
   children: ReactNode | ReactNode[];
   navBar?: ReactNode;
 }
 
-const PageLayout: React.FC<LayoutProps> = ({ children, navBar, isHome, hasMenu, onShowMenu, onShowSearchBar }) => {
+const PageLayout: React.FC<LayoutProps> = ({ children, navBar }) => {
   const { showConfirmBox } = useContext(BookContext);
 
   return (
     <>
-      <Header isHome={isHome} hasMenu={hasMenu} onShowMenu={onShowMenu} onShowSearchBar={onShowSearchBar} />
+      <Header />
       {navBar}
       <main
         className={clsx(
