@@ -1,63 +1,89 @@
-import React, { useState, useEffect } from 'react';
+import React, { ReactNode, useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { ApiRequest } from '@services/api-request';
-import PageLayout from '@layouts/PageLayout';
-import Loading from '@components/common/Loading';
-import BookPanel from '@components/BookPanel';
-import BookDetails from '@components/BookDetails';
+import { BookContext } from '@stores/book';
+import { ButtonVariants } from '@enums/Button';
+import { IconNames } from '@enums/Icon';
+import { LoadStatus } from '@enums/LoadStatus';
+import Container from '@layouts/Container';
+import Header from '@components/Header';
 import { Book } from '@components/BookList/BookCard';
-import BookBar from '@components/BookBar';
+import BookDetail from '@components/BookDetail';
+import BookDetailSkeleton from '@components/BookDetail/BookDetailSkeleton';
+import BackLink from '@components/common/BackLink';
+import EmptyState from '@components/common/EmptyState';
+import LinkButton from '@components/common/LinkButton';
+import ConfirmBox from '@components/ConfirmBox';
 
 const BookPage: React.FC = () => {
-  const [loading, setLoading] = useState<boolean>(false);
-
-  const [currentBook, setCurrentBook] = useState<Book>({} as Book);
-
   const { bookId } = useParams();
+  const { showConfirmBox, setShowConfirmBox, setCurrentBookId } = useContext(BookContext);
+
+  const [book, setBook] = useState<Book>();
+  const [status, setStatus] = useState<LoadStatus>(LoadStatus.LOADING);
 
   useEffect(() => {
     let ignore = false;
 
-    const fetchBook = async (bookId: string | undefined) => {
-      try {
-        setLoading(true);
+    const fetchBook = async () => {
+      setStatus(LoadStatus.LOADING);
 
+      try {
         const result = await ApiRequest.getBookById(bookId);
 
-        if (!ignore) setCurrentBook(result);
+        if (ignore) return;
 
-        setLoading(false);
-      } catch (error) {
-        alert(error);
+        setBook(result);
+        setStatus(LoadStatus.READY);
+      } catch {
+        // The only failure is an unknown id ("Book not found")
+        if (!ignore) setStatus(LoadStatus.ERROR);
       }
     };
 
-    fetchBook(bookId);
+    fetchBook();
 
     return () => {
       ignore = true;
     };
   }, [bookId]);
 
-  if (!currentBook) return <Loading />;
+  const handleDelete = () => {
+    setCurrentBookId(bookId);
+    setShowConfirmBox(true);
+  };
 
-  const { title, thumbnail, description, author, published, publishers, category, country } = currentBook;
+  const renderContent = (): ReactNode => {
+    if (status === LoadStatus.LOADING) return <BookDetailSkeleton />;
+
+    if (status === LoadStatus.ERROR || !book) {
+      return (
+        <EmptyState
+          icon={IconNames.SEARCH}
+          title="We couldn't find that book"
+          text="It may have been deleted, or the link is wrong."
+          actions={(
+            <LinkButton to="/" variant={ButtonVariants.SECONDARY} icon={IconNames.BACK}>
+              Back to all books
+            </LinkButton>
+          )}
+        />
+      );
+    }
+
+    return <BookDetail book={book} onDelete={handleDelete} />;
+  };
 
   return (
     <>
-      {loading ? <Loading /> : null}
-      <PageLayout navBar={<BookBar bookId={bookId} />}>
-        <div className="sm:flex overflow-y-auto">
-          <BookPanel
-            author={author}
-            publishedYear={published}
-            publishers={publishers}
-            category={category}
-            country={country}
-          />
-          <BookDetails title={title} thumbnail={thumbnail} description={description} />
-        </div>
-      </PageLayout>
+      <Header />
+      <Container className="pb-16 pt-4 sm:pt-6">
+        <BackLink to="/">All books</BackLink>
+        <main className="mt-4" aria-busy={status === LoadStatus.LOADING || undefined}>
+          {renderContent()}
+        </main>
+      </Container>
+      {showConfirmBox ? <ConfirmBox /> : null}
     </>
   );
 };
