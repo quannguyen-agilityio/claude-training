@@ -8,10 +8,12 @@ interface BookCoverProps {
   thumbnail?: string;
   // Small covers (list rows) show only the icon in the fallback tile
   compact?: boolean;
+  // Empty by default, because the title is always next to the cover
+  alt?: string;
 }
 
 // Always the cover's real 2:3 shape. Falls back to a tile when the image is missing or fails to load
-const BookCover: React.FC<BookCoverProps> = ({ title, thumbnail, compact }) => {
+const BookCover: React.FC<BookCoverProps> = ({ title, thumbnail, compact, alt = '' }) => {
   const [failedSrc, setFailedSrc] = useState<string>();
 
   if (!thumbnail || failedSrc === thumbnail) {
@@ -32,7 +34,7 @@ const BookCover: React.FC<BookCoverProps> = ({ title, thumbnail, compact }) => {
   return (
     <img
       src={thumbnail}
-      alt=""
+      alt={alt}
       loading="lazy"
       onError={() => setFailedSrc(thumbnail)}
       className="block aspect-cover w-full rounded-md bg-raised object-cover shadow-cover transition-shadow group-hover:shadow-cover-lg"

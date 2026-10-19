@@ -3,7 +3,7 @@ import { DisplayTypes, SortType } from '@enums/Filter';
 import { Book } from '@components/BookList/BookCard';
 import { CategoryTitle } from '@enums/Category';
 import { BookReducer, BookReducerState, initValue } from './reducer';
-import { BookActionsType } from './actions';
+import { BookActionsType, BookToDelete } from './actions';
 
 export interface BookContextType extends BookReducerState {
   getAllBooks: (bookList: Book[]) => void;
@@ -11,8 +11,7 @@ export interface BookContextType extends BookReducerState {
   setCurrentCategory: (category: CategoryTitle) => void;
   setCurrentBooks: (bookList: Book[]) => void;
   setCurrentSortType: (type: SortType) => void;
-  setShowConfirmBox: (value: boolean) => void;
-  setCurrentBookId: (id?: string) => void;
+  setBookToDelete: (book?: BookToDelete) => void;
   setSearchInput: (value: string) => void;
 }
 
@@ -56,19 +55,12 @@ const BookProvider = ({ children }: { children: ReactNode }): ReactElement => {
     });
   };
 
-  const setShowConfirmBox = (value: boolean): void => {
+  const setBookToDelete = useCallback((book?: BookToDelete): void => {
     dispatch({
-      type: BookActionsType.SET_SHOW_CONFIRM_BOX,
-      showConfirmBox: value,
+      type: BookActionsType.SET_BOOK_TO_DELETE,
+      bookToDelete: book,
     });
-  };
-
-  const setCurrentBookId = (id?: string): void => {
-    dispatch({
-      type: BookActionsType.SET_CURRENT_BOOK_ID,
-      currentBookId: id,
-    });
-  };
+  }, []);
 
   const setSearchInput = useCallback((value: string): void => {
     dispatch({
@@ -91,10 +83,8 @@ const BookProvider = ({ children }: { children: ReactNode }): ReactElement => {
       setCurrentSortType,
       searchInput: state.searchInput,
       setSearchInput,
-      showConfirmBox: state.showConfirmBox,
-      setShowConfirmBox,
-      currentBookId: state.currentBookId,
-      setCurrentBookId,
+      bookToDelete: state.bookToDelete,
+      setBookToDelete,
     }),
     [
       state.books,
@@ -106,8 +96,8 @@ const BookProvider = ({ children }: { children: ReactNode }): ReactElement => {
       state.currentSortType,
       state.searchInput,
       setSearchInput,
-      state.showConfirmBox,
-      state.currentBookId,
+      state.bookToDelete,
+      setBookToDelete,
     ],
   );
 

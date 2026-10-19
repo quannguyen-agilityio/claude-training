@@ -1,216 +1,275 @@
-import React, { useState, FormEvent, useEffect } from 'react';
-import { ApiRequest } from '@services/api-request';
-import { useParams } from 'react-router-dom';
+import React, { ChangeEvent, FocusEvent, FormEvent, useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { v4 as generateUUID } from 'uuid';
+import { ApiRequest } from '@services/api-request';
 import { CategoryTitle } from '@enums/Category';
 import { ButtonVariants } from '@enums/Button';
-import { Book } from '@components/BookList/BookCard';
 import { ErrorMsgs } from '@enums/ErrorMsg';
+import { IconNames } from '@enums/Icon';
+import { LoadStatus } from '@enums/LoadStatus';
 import { CATEGORIES } from '@constants/Category';
 import RegexValue from '@constants/RegexValue';
+import validateInput, { FieldRule } from '@helpers/validator';
+import { Book } from '@components/BookList/BookCard';
+import Alert from '@components/common/Alert';
+import BackLink from '@components/common/BackLink';
 import Button from '@components/common/Button';
+import EmptyState from '@components/common/EmptyState';
 import LinkButton from '@components/common/LinkButton';
-import TextField from '@components/common/TextField';
-import TextAreaField from '@components/common/TextAreaField';
-import Loading from '@components/common/Loading';
-import validateInput from '@helpers/validator';
 import SelectField from '@components/common/SelectField';
+import TextAreaField from '@components/common/TextAreaField';
+import TextField from '@components/common/TextField';
+import CoverPreview from './CoverPreview';
+
+type TextFieldName = 'title' | 'author' | 'thumbnail' | 'published' | 'publishers' | 'country' | 'description';
+
+// Every value is a string while editing, so the release year can be blank
+type BookFormValues = Record<TextFieldName, string> & { category: CategoryTitle };
+
+type BookFormErrors = Partial<Record<TextFieldName, string>>;
+
+// In the order the fields appear, so the first error found is the first invalid field on screen
+const RULES: Record<TextFieldName, FieldRule> = {
+  title: { message: ErrorMsgs.TITLE_REQUIRED },
+  author: { message: ErrorMsgs.AUTHOR_REQUIRED },
+  thumbnail: { message: ErrorMsgs.INVALID_URL, pattern: RegexValue.URL },
+  published: { message: ErrorMsgs.INVALID_YEAR, pattern: RegexValue.POSITIVE_NUMBER },
+  publishers: { message: ErrorMsgs.PUBLISHER_REQUIRED },
+  country: { message: ErrorMsgs.COUNTRY_REQUIRED },
+  description: { message: ErrorMsgs.DESCRIPTION_REQUIRED },
+};
+
+const FIELD_NAMES = Object.keys(RULES) as TextFieldName[];
+
+const isTextField = (name: string): name is TextFieldName => name in RULES;
+
+const EMPTY_VALUES: BookFormValues = {
+  title: '',
+  author: '',
+  thumbnail: '',
+  published: '',
+  publishers: '',
+  country: '',
+  description: '',
+  category: CategoryTitle.ADVENTURE,
+};
+
+const toFormValues = (book: Book): BookFormValues => ({
+  title: book.title,
+  author: book.author,
+  thumbnail: book.thumbnail,
+  published: String(book.published),
+  publishers: book.publishers ?? '',
+  country: book.country ?? '',
+  description: book.description ?? '',
+  category: book.category ?? CategoryTitle.ADVENTURE,
+});
 
 interface BookFormProps {
-  formTitle: string;
+  // Edits this book when set, adds a new one otherwise
+  bookId?: string;
 }
 
-const BookForm: React.FC<BookFormProps> = ({ formTitle }) => {
-  const [loading, setLoading] = useState<boolean>(false);
+const BookForm: React.FC<BookFormProps> = ({ bookId }) => {
+  const navigate = useNavigate();
+  const formRef = useRef<HTMLFormElement>(null);
+  const [newBookId] = useState<string>(() => generateUUID());
 
-  const { bookId } = useParams();
+  const [values, setValues] = useState<BookFormValues>(EMPTY_VALUES);
+  const [errors, setErrors] = useState<BookFormErrors>({});
+  const [previewUrl, setPreviewUrl] = useState<string>('');
+  const [loadStatus, setLoadStatus] = useState<LoadStatus>(bookId ? LoadStatus.LOADING : LoadStatus.READY);
+  const [saving, setSaving] = useState<boolean>(false);
+  const [saveFailed, setSaveFailed] = useState<boolean>(false);
 
-  const [errors, setErrors] = useState({
-    title: '',
-    thumbnail: '',
-    author: '',
-    published: '',
-    publishers: '',
-    country: '',
-    description: '',
-  });
-
-  const [formData, setFormData] = useState<Book>({
-    id: bookId || generateUUID(),
-    title: '',
-    thumbnail: '',
-    author: '',
-    published: 0,
-    publishers: '',
-    category: CategoryTitle.ADVENTURE,
-    country: '',
-    description: '',
-  });
+  const isEdit = Boolean(bookId);
+  const backTo = bookId ? `/${bookId}` : '/';
 
   useEffect(() => {
     let ignore = false;
 
-    const fetchBook = async (id: string | undefined) => {
-      if (!id) return;
-
+    const fetchBook = async (id: string) => {
       try {
-        setLoading(true);
+        const book = await ApiRequest.getBookById(id);
 
-        const result = await ApiRequest.getBookById(id);
+        if (ignore) return;
 
-        if (!ignore) setFormData(result);
-
-        setLoading(false);
-      } catch (error) {
-        alert(error);
+        setValues(toFormValues(book));
+        setPreviewUrl(book.thumbnail);
+        setLoadStatus(LoadStatus.READY);
+      } catch {
+        if (!ignore) setLoadStatus(LoadStatus.ERROR);
       }
     };
 
-    fetchBook(bookId);
+    if (bookId) fetchBook(bookId);
 
     return () => {
       ignore = true;
     };
   }, [bookId]);
 
-  if (!formData) return <Loading />;
+  const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = event.currentTarget;
 
-  const checkValidForm = () => {
-    const isAllInputsValid = Object.values(formData).every(property => property.toString().length !== 0);
-    const hasNoErrorMsgs = Object.values(errors).every(errorValue => !errorValue);
-
-    return isAllInputsValid && hasNoErrorMsgs;
+    setValues(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleBlur = (event: FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = event.currentTarget;
 
-    if (!checkValidForm()) {
-      alert('Form is invalid');
+    if (!isTextField(name)) return;
+
+    const error = validateInput(value, RULES[name]);
+
+    setErrors(prev => ({ ...prev, [name]: error }));
+
+    if (name === 'thumbnail') setPreviewUrl(error ? '' : value.trim());
+  };
+
+  const save = async () => {
+    setSaving(true);
+    setSaveFailed(false);
+
+    const book: Book = { ...values, id: bookId ?? newBookId, published: Number(values.published) };
+
+    try {
+      if (bookId) {
+        await ApiRequest.updateBook(book);
+      } else {
+        await ApiRequest.addBook(book);
+      }
+    } catch {
+      // Keep the values on screen so nothing typed is lost
+      setSaving(false);
+      setSaveFailed(true);
       return;
     }
-    // [TODO] Handle notify to fill in the form
 
-    (async () => {
-      try {
-        setLoading(true);
-
-        if (bookId) {
-          await ApiRequest.updateBook(formData);
-        } else {
-          await ApiRequest.addBook(formData);
-        }
-
-        setLoading(false);
-      } catch (error) {
-        alert(error); // [TODO] Handle show error to UI
-      }
-
-      window.location.assign('/');
-    })();
+    navigate(backTo);
   };
 
-  const handleChange = (
-    e: FormEvent<HTMLInputElement> | FormEvent<HTMLSelectElement> | FormEvent<HTMLTextAreaElement>,
-  ) => {
-    const { name, value } = e.currentTarget;
-    setFormData({ ...formData, [name]: name === 'published' ? Number(value) : value });
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const nextErrors: BookFormErrors = {};
+
+    FIELD_NAMES.forEach(name => {
+      const error = validateInput(values[name], RULES[name]);
+
+      if (error) nextErrors[name] = error;
+    });
+
+    setErrors(nextErrors);
+
+    const firstInvalid = FIELD_NAMES.find(name => nextErrors[name]);
+
+    if (firstInvalid) {
+      const field = formRef.current?.elements.namedItem(firstInvalid);
+
+      if (field instanceof HTMLElement) field.focus();
+      return;
+    }
+
+    save();
   };
 
-  const handleBlur = (
-    e: FormEvent<HTMLInputElement> | FormEvent<HTMLSelectElement> | FormEvent<HTMLTextAreaElement>,
-    regex?: RegExp,
-    message?: ErrorMsgs,
-  ) => {
-    const { name, value } = e.currentTarget;
-    setErrors({ ...errors, [name]: validateInput(value, regex, message) });
-  };
+  if (loadStatus === LoadStatus.ERROR) {
+    return (
+      <>
+        <BackLink to="/">All books</BackLink>
+        <EmptyState
+          icon={IconNames.SEARCH}
+          title="We couldn't find that book"
+          text="It may have been deleted, or the link is wrong."
+          actions={(
+            <LinkButton to="/" variant={ButtonVariants.SECONDARY} icon={IconNames.BACK}>
+              Back to all books
+            </LinkButton>
+          )}
+        />
+      </>
+    );
+  }
+
+  const busy = saving || loadStatus === LoadStatus.LOADING;
+
+  const fieldProps = (name: TextFieldName) => ({
+    name,
+    value: values[name],
+    error: errors[name],
+    onChange: handleChange,
+    onBlur: handleBlur,
+  });
 
   return (
     <>
-      {loading ? <Loading /> : null}
-      <form
-        action="#"
-        id="bookForm"
-        className="w-full py-10 px-7 sm:px-32 border-x bg-white overflow-y-auto dark:bg-black"
-        onSubmit={handleSubmit}
-      >
-        <h2 className="text-2xl dark:text-white text-center mb-8">{formTitle}</h2>
-        <div className="mb-8 flex flex-col gap-6">
-          <TextField
-            value={formData.title}
-            label="Title"
-            name="title"
-            error={errors.title}
-            onChange={handleChange}
-            onBlur={handleBlur}
+      <BackLink to={backTo}>{isEdit ? 'Back to book' : 'All books'}</BackLink>
+      <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-ink">{isEdit ? 'Edit book' : 'Add a book'}</h1>
+      <p className="mt-1 text-sm text-muted">All fields are required.</p>
+      {saveFailed ? (
+        <div className="mt-6 max-w-2xl">
+          <Alert
+            title="We couldn't save this book."
+            text="Your changes are still here."
+            actionLabel="Try again"
+            onAction={save}
           />
-          <TextField
-            value={formData.thumbnail}
-            label="Thumbnail URL"
-            name="thumbnail"
-            error={errors.thumbnail}
-            onChange={handleChange}
-            onBlur={e => handleBlur(e, RegexValue.URL, ErrorMsgs.INVALID_URL)}
-          />
-          <TextField
-            value={formData.author}
-            label="Author"
-            name="author"
-            error={errors.author}
-            onChange={handleChange}
-            onBlur={handleBlur}
-          />
-          <TextField
-            type="number"
-            value={formData.published}
-            label="Release Year"
-            name="published"
-            error={errors.published}
-            onChange={handleChange}
-            onBlur={handleBlur}
-          />
-          <TextField
-            value={formData.publishers}
-            label="Publishers"
-            name="publishers"
-            error={errors.publishers}
-            onChange={handleChange}
-            onBlur={handleBlur}
-          />
-          <SelectField value={formData.category} label="Category" name="category" onChange={handleChange}>
-            {CATEGORIES.map(category => {
-              return (
+        </div>
+      ) : null}
+      <div className="mt-6 flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-10">
+        <CoverPreview title={values.title} thumbnail={previewUrl} />
+        <form
+          ref={formRef}
+          noValidate
+          aria-busy={busy || undefined}
+          onSubmit={handleSubmit}
+          className="w-full max-w-2xl rounded-xl border border-line bg-surface p-5 sm:p-8"
+        >
+          <fieldset disabled={busy} className="grid min-w-0 gap-5 sm:grid-cols-2">
+            <TextField label="Title" className="sm:col-span-2" {...fieldProps('title')} />
+            <TextField label="Author" className="sm:col-span-2" {...fieldProps('author')} />
+            <TextField
+              type="url"
+              label="Cover image URL"
+              placeholder="https://"
+              className="sm:col-span-2"
+              {...fieldProps('thumbnail')}
+            />
+            <TextField
+              type="number"
+              inputMode="numeric"
+              label="Release year"
+              placeholder="e.g. 1883"
+              {...fieldProps('published')}
+            />
+            <SelectField label="Category" name="category" value={values.category} onChange={handleChange}>
+              {CATEGORIES.map(category => (
                 <option key={category} value={category}>
                   {category}
                 </option>
-              );
-            })}
-          </SelectField>
-          <TextField
-            value={formData.country}
-            label="Country"
-            name="country"
-            error={errors.country}
-            onChange={handleChange}
-            onBlur={handleBlur}
-          />
-          <TextAreaField
-            value={formData.description}
-            label="Description"
-            name="description"
-            error={errors.description}
-            onChange={handleChange}
-            onBlur={handleBlur}
-          />
-        </div>
-        <div className="w-full flex justify-center gap-2">
-          <Button type="submit">Submit</Button>
-          <LinkButton to="/" variant={ButtonVariants.SECONDARY}>
-            Cancel
-          </LinkButton>
-        </div>
-      </form>
+              ))}
+            </SelectField>
+            <TextField label="Publisher" {...fieldProps('publishers')} />
+            <TextField label="Country" {...fieldProps('country')} />
+            <TextAreaField label="Description" className="sm:col-span-2" {...fieldProps('description')} />
+          </fieldset>
+          <div className="mt-8 flex flex-col-reverse gap-3 border-t border-line pt-6 sm:flex-row sm:justify-end">
+            <LinkButton to={backTo} variant={ButtonVariants.SECONDARY} className="w-full sm:w-auto" disabled={saving}>
+              Cancel
+            </LinkButton>
+            <Button
+              type="submit"
+              className="w-full sm:w-auto"
+              loading={saving}
+              loadingLabel="Saving…"
+              disabled={loadStatus === LoadStatus.LOADING}
+            >
+              {isEdit ? 'Save changes' : 'Add book'}
+            </Button>
+          </div>
+        </form>
+      </div>
     </>
   );
 };

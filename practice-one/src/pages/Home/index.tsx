@@ -16,7 +16,7 @@ import Alert from '@components/common/Alert';
 import EmptyState from '@components/common/EmptyState';
 import Icon from '@components/common/Icon';
 import LinkButton from '@components/common/LinkButton';
-import ConfirmBox from '@components/ConfirmBox';
+import DeleteDialog from '@components/DeleteDialog';
 
 const formatCount = (count: number) => `${count} ${count === 1 ? 'book' : 'books'}`;
 
@@ -34,7 +34,7 @@ function Home() {
     setDisplayType,
     searchInput,
     setSearchInput,
-    showConfirmBox,
+    bookToDelete,
   } = useContext(BookContext);
 
   // Books already in the store (coming back from another page) show right away while they refresh
@@ -185,7 +185,7 @@ function Home() {
           </main>
         </div>
       </Container>
-      {showConfirmBox ? <ConfirmBox /> : null}
+      {bookToDelete ? <DeleteDialog book={bookToDelete} /> : null}
     </>
   );
 }

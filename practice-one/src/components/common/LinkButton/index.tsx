@@ -12,11 +12,25 @@ interface LinkButtonProps {
   variant?: ButtonVariants;
   icon?: IconNames;
   className?: string;
+  // Looks and acts disabled, e.g. Cancel while a form is saving
+  disabled?: boolean;
 }
 
 // A link that looks like a button, so buttons are never nested inside links
-const LinkButton: React.FC<LinkButtonProps> = ({ to, children, variant = ButtonVariants.PRIMARY, icon, className }) => (
-  <Link to={to} className={clsx(BUTTON_STYLES[variant], className)}>
+const LinkButton: React.FC<LinkButtonProps> = ({
+  to,
+  children,
+  variant = ButtonVariants.PRIMARY,
+  icon,
+  className,
+  disabled,
+}) => (
+  <Link
+    to={to}
+    className={clsx(BUTTON_STYLES[variant], disabled && 'pointer-events-none opacity-50', className)}
+    aria-disabled={disabled || undefined}
+    tabIndex={disabled ? -1 : undefined}
+  >
     {icon ? <Icon name={icon} /> : null}
     {children}
   </Link>

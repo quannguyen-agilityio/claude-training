@@ -1,18 +1,20 @@
 import { ErrorMsgs } from '@enums/ErrorMsg';
 
-const isBlank = (value: string | number): boolean => {
-  return !value;
-};
+export interface FieldRule {
+  // Shown when the value is blank or doesn't match the pattern
+  message: ErrorMsgs;
+  pattern?: RegExp;
+}
 
-const validateInput = (value: string, regex?: RegExp, message?: ErrorMsgs) => {
-  if (isBlank(value.trim())) {
-    return ErrorMsgs.EMPTY_FIELD;
-  }
+/**
+ * Validate one required field
+ * @returns the error message, or '' when the value is valid
+ */
+const validateInput = (value: string, { message, pattern }: FieldRule): string => {
+  const trimmed = value.trim();
 
-  if (regex && message) {
-    if (!value.match(regex)) {
-      return message;
-    }
+  if (!trimmed || (pattern && !pattern.test(trimmed))) {
+    return message;
   }
 
   return '';

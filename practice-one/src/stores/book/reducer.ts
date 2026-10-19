@@ -1,7 +1,7 @@
 import { Book } from '@components/BookList/BookCard';
 import { CategoryTitle } from '@enums/Category';
 import { DisplayTypes, SortType } from '@enums/Filter';
-import { BookActions, BookActionsType } from './actions';
+import { BookActions, BookActionsType, BookToDelete } from './actions';
 import { BookContextType } from '.';
 
 export interface BookReducerState {
@@ -11,8 +11,7 @@ export interface BookReducerState {
   currentBooks: Book[];
   currentSortType: SortType;
   searchInput: string;
-  showConfirmBox: boolean;
-  currentBookId?: string;
+  bookToDelete?: BookToDelete;
 }
 
 export const initValue: BookContextType = {
@@ -22,8 +21,7 @@ export const initValue: BookContextType = {
   currentBooks: [],
   currentSortType: SortType.NONE,
   searchInput: '',
-  showConfirmBox: false,
-  currentBookId: undefined,
+  bookToDelete: undefined,
 } as unknown as BookContextType;
 
 export const BookReducer = (state: BookReducerState, action: BookActions) => {
@@ -58,16 +56,10 @@ export const BookReducer = (state: BookReducerState, action: BookActions) => {
         currentSortType: action.currentSortType,
       };
     }
-    case BookActionsType.SET_SHOW_CONFIRM_BOX: {
+    case BookActionsType.SET_BOOK_TO_DELETE: {
       return {
         ...state,
-        showConfirmBox: action.showConfirmBox,
-      };
-    }
-    case BookActionsType.SET_CURRENT_BOOK_ID: {
-      return {
-        ...state,
-        currentBookId: action.currentBookId,
+        bookToDelete: action.bookToDelete,
       };
     }
     case BookActionsType.SET_SEARCH_INPUT: {
