@@ -4,34 +4,36 @@
 > Paths are relative to `practice-one/`.
 >
 > **Re-verified on 2026-10-19** against `sample-project` @ `3e7f2e0` (after the mock-data and UI-refresh MRs), using the Playwright MCP server for the app and every Storybook story, and running commands for tooling. 18 of the original 20 are fixed (13) or obsolete (5), #10 and #11 are still open, and the Playwright pass found #21–#23. Each entry has a **Status** line. The original text is kept below it for history.
+>
+> **Re-verified on 2026-10-21** against `sample-project` @ `4fdcd6a`: the last five open items (#10, #11, #21, #22, #23) are now **Fixed**. All 23 items are fixed or obsolete. Those five entries have a new **Status (2026-10-21)** line above the 2026-10-19 one.
 
 ## Summary
 
-| #   | Severity | Area           | Bug                                                                                | Status (2026-10-19) |
-| --- | -------- | -------------- | ---------------------------------------------------------------------------------- | ------------------- |
-| 1   | High     | Search         | Search box doesn't filter anything                                                 | Fixed               |
-| 2   | High     | Edit form      | Category dropdown ignores the saved value                                          | Fixed               |
-| 3   | High     | Error handling | Loading overlay never clears after a failed request                                | Obsolete            |
-| 4   | Medium   | Add/Edit form  | On save failure the app still redirects home and the input is lost                 | Fixed               |
-| 5   | Medium   | Add/Edit form  | Optional fields are required; year `0` passes validation                           | Fixed               |
-| 6   | Medium   | Add/Edit form  | "Enter a valid year" message can never appear                                      | Fixed               |
-| 7   | Low      | Storybook      | Configured addon isn't installed (non-fatal warning) (**verified**)                | Fixed               |
-| 8   | Medium   | Storybook      | 3 of 18 stories crash: no router decorator (**verified**)                          | Fixed               |
-| 9   | Medium   | Storybook      | Storybook crashes on Node ≥ 17 without the OpenSSL flag (**verified**)             | Fixed               |
-| 10  | Medium   | Tooling        | Husky hooks aren't executable                                                      | **Still open**      |
-| 11  | Low      | Types          | Stray exports in `vite-env.d.ts` reference a non-existent module                   | **Still open**      |
-| 12  | **High** | Security       | Dev server exposes the whole shell environment to the browser (**verified**)       | Fixed               |
-| 13  | Low      | Styling        | Two invalid Tailwind classes are silently ignored                                  | Obsolete            |
-| 14  | Low      | UX             | Full page reload after create, update, or delete                                   | Fixed               |
-| 15  | Low      | Data           | Category counts go stale                                                           | Fixed               |
-| 16  | Low      | Performance    | All books are fetched twice on Home mount                                          | Obsolete            |
-| 17  | Low      | Theme          | Switching to light theme wipes every class on `<html>`                             | Fixed               |
-| 18  | Low      | Dead code      | "Loading" guards that can never trigger                                            | Obsolete            |
-| 19  | Medium   | Tooling        | ESLint lints `dist/` after a build: ~50k errors (**verified**)                     | Fixed               |
-| 20  | High     | Config         | Missing `ROOT_URL` → empty app in dev, crash in production (**verified**)          | Obsolete            |
-| 21  | Medium   | Routing        | Unknown multi-segment URLs show React Router's developer error page (**verified**) | **Still open**      |
-| 22  | Low      | A11y           | Closing the delete dialog via the backdrop loses focus (**verified**)              | **Still open**      |
-| 23  | Low      | Styling        | Sort select on Home is unstyled (**verified**)                                     | **Still open**      |
+| #   | Severity | Area           | Bug                                                                                | Status (last checked) |
+| --- | -------- | -------------- | ---------------------------------------------------------------------------------- | --------------------- |
+| 1   | High     | Search         | Search box doesn't filter anything                                                 | Fixed                 |
+| 2   | High     | Edit form      | Category dropdown ignores the saved value                                          | Fixed                 |
+| 3   | High     | Error handling | Loading overlay never clears after a failed request                                | Obsolete              |
+| 4   | Medium   | Add/Edit form  | On save failure the app still redirects home and the input is lost                 | Fixed                 |
+| 5   | Medium   | Add/Edit form  | Optional fields are required; year `0` passes validation                           | Fixed                 |
+| 6   | Medium   | Add/Edit form  | "Enter a valid year" message can never appear                                      | Fixed                 |
+| 7   | Low      | Storybook      | Configured addon isn't installed (non-fatal warning) (**verified**)                | Fixed                 |
+| 8   | Medium   | Storybook      | 3 of 18 stories crash: no router decorator (**verified**)                          | Fixed                 |
+| 9   | Medium   | Storybook      | Storybook crashes on Node ≥ 17 without the OpenSSL flag (**verified**)             | Fixed                 |
+| 10  | Medium   | Tooling        | Husky hooks aren't executable                                                      | Fixed (2026-10-21)    |
+| 11  | Low      | Types          | Stray exports in `vite-env.d.ts` reference a non-existent module                   | Fixed (2026-10-21)    |
+| 12  | **High** | Security       | Dev server exposes the whole shell environment to the browser (**verified**)       | Fixed                 |
+| 13  | Low      | Styling        | Two invalid Tailwind classes are silently ignored                                  | Obsolete              |
+| 14  | Low      | UX             | Full page reload after create, update, or delete                                   | Fixed                 |
+| 15  | Low      | Data           | Category counts go stale                                                           | Fixed                 |
+| 16  | Low      | Performance    | All books are fetched twice on Home mount                                          | Obsolete              |
+| 17  | Low      | Theme          | Switching to light theme wipes every class on `<html>`                             | Fixed                 |
+| 18  | Low      | Dead code      | "Loading" guards that can never trigger                                            | Obsolete              |
+| 19  | Medium   | Tooling        | ESLint lints `dist/` after a build: ~50k errors (**verified**)                     | Fixed                 |
+| 20  | High     | Config         | Missing `ROOT_URL` → empty app in dev, crash in production (**verified**)          | Obsolete              |
+| 21  | Medium   | Routing        | Unknown multi-segment URLs show React Router's developer error page (**verified**) | Fixed (2026-10-21)    |
+| 22  | Low      | A11y           | Closing the delete dialog via the backdrop loses focus (**verified**)              | Fixed (2026-10-21)    |
+| 23  | Low      | Styling        | Sort select on Home is unstyled (**verified**)                                     | Fixed (2026-10-21)    |
 
 ---
 
@@ -113,6 +115,7 @@
 
 ### 10. Husky hooks aren't executable
 
+- **Status (2026-10-21):** Fixed by `502d5c1` ([#14](https://gitlab.asoft-python.com/quan.nguyen/claude-training/-/work_items/14)). `git ls-files -s` shows mode `100755` for `commit-msg` and `pre-commit`. In a throwaway clone with `core.hooksPath=practice-one/.husky`, `git commit -m "bad message"` is rejected by commitlint (`subject-empty`, `type-empty`, exit 1), and `git commit -m "chore: hook smoke test"` runs the pre-commit ESLint fix and succeeds, with no "hook was ignored" warning.
 - **Status (2026-10-19):** Still open: [#14](https://gitlab.asoft-python.com/quan.nguyen/claude-training/-/work_items/14). `git ls-files -s` still shows mode `100644`, and every commit prints "hook was ignored because it's not set as executable".
 - **Where:** `.husky/pre-commit`, `.husky/commit-msg` (mode `-rw-rw-r--`)
 - **What:** Git skips hooks without the execute bit, so ESLint auto-fix and commitlint silently never run **(inferred)**. Separately, `prepare` (`cd .. && husky install practice-one/.husky`) will set `core.hooksPath` on the **outer** `claude-training` repo.
@@ -124,6 +127,7 @@
 
 ### 11. Stray exports in `vite-env.d.ts` reference a non-existent module
 
+- **Status (2026-10-21):** Fixed by `da8e04b` ([#15](https://gitlab.asoft-python.com/quan.nguyen/claude-training/-/work_items/15)). `src/vite-env.d.ts` only has the `vite/client` reference and the `*.svg` module; `grep -E 'isV4|uuid'` finds nothing. `pnpm build` and `pnpm lint:eslint` both exit 0.
 - **Status (2026-10-19):** Still open: [#15](https://gitlab.asoft-python.com/quan.nguyen/claude-training/-/work_items/15). Lines 11–12 are unchanged and `src/uuid*` doesn't exist.
 - **Where:** `src/vite-env.d.ts:11-12`
 - **What:** `export function isV4(): boolean;` and `export { v4 } from './uuid';` look pasted in from `@types/uuid`. There's no `./uuid` file. The exports also turn this declaration file into a module, which changes how the `declare module '*.svg'` block is interpreted. **Verified 2026-10-14: `pnpm build` (`tsc && vite build`) still passes**, most likely because `skipLibCheck: true` skips `.d.ts` files. So this is dead, misleading code rather than a build breaker.
@@ -203,6 +207,7 @@
 
 ### 21. Unknown multi-segment URLs show React Router's developer error page (verified)
 
+- **Status (2026-10-21):** Fixed by `c4b5d1c` ([#16](https://gitlab.asoft-python.com/quan.nguyen/claude-training/-/work_items/16)): a catch-all route renders `pages/NotFound`. Playwright: `/a/b` shows "We couldn't find that page" with Back to all books, and 0 console errors; `/edit-book` shows "We couldn't find that book".
 - **Status (2026-10-19):** Still open: [#16](https://gitlab.asoft-python.com/quan.nguyen/claude-training/-/work_items/16).
 - **Where:** `src/main.tsx:18-35` (`createBrowserRouter` has no `path: '*'` route and no `errorElement`)
 - **What:** `/a/b`, `/edit-book` or any unmatched URL with 2+ segments renders "Unexpected Application Error! 404 Not Found 💿 Hey developer 👋" and logs `Error handled by React Router default ErrorBoundary` to the console. Single-segment URLs are fine because `/:bookId` catches them.
@@ -210,6 +215,7 @@
 
 ### 22. Closing the delete dialog via the backdrop loses focus (verified)
 
+- **Status (2026-10-21):** Fixed by `46911e6` ([#17](https://gitlab.asoft-python.com/quan.nguyen/claude-training/-/work_items/17)): `handleBackdropMouseDown` calls `preventDefault()` before closing. Playwright: open the alertdialog from "Delete Treasure Island", mouse-click the backdrop at (5, 5): the dialog closes and focus is on `BUTTON Delete Treasure Island`. Esc also restores focus there.
 - **Status (2026-10-19):** Still open: [#17](https://gitlab.asoft-python.com/quan.nguyen/claude-training/-/work_items/17).
 - **Where:** `src/components/common/Dialog/index.tsx:80-82`
 - **What:** The backdrop closes on `mousedown`. The effect cleanup restores focus to the opener, then the browser's default `mousedown` action moves focus to the removed backdrop, which leaves it on `<body>`. Esc and Cancel restore focus correctly. This goes against `design/specs/delete-dialog.md:46`. Probe: with `mousedown` default prevented, focus returns to "Delete Treasure Island".
@@ -217,6 +223,7 @@
 
 ### 23. Sort select on Home is unstyled (verified)
 
+- **Status (2026-10-21):** Fixed by `74764ce` ([#18](https://gitlab.asoft-python.com/quan.nguyen/claude-training/-/work_items/18)): the select gets `FIELD_STYLES.base`/`ok` classes. Playwright: background `rgb(255,255,255)` light / `rgb(22,27,34)` dark, `1px solid` border, `8px` radius, and none of `base ok error label` in its class list.
 - **Status (2026-10-19):** Still open: [#18](https://gitlab.asoft-python.com/quan.nguyen/claude-training/-/work_items/18).
 - **Where:** `src/components/BookToolbar/index.tsx:66`
 - **What:** `clsx(FIELD_STYLES, …)` receives the style _object_, so it outputs the keys `base ok error label` as class names. The select keeps the browser default grey background (`rgb(239,239,239)` light, `rgb(107,107,107)` dark) with no border or radius.
