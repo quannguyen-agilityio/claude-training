@@ -7,6 +7,3 @@ declare module '*.svg' {
   const src: string;
   export default src;
 }
-
-export function isV4(): boolean;
-export { v4 } from './uuid';
