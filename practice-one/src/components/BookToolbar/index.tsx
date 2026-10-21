@@ -63,7 +63,7 @@ const BookToolbar: React.FC<BookToolbarProps> = ({
               id={sortId}
               value={sortType}
               onChange={handleSortChange}
-              className={clsx(FIELD_STYLES, 'h-11 appearance-none pr-10 text-sm font-semibold')}
+              className={clsx(FIELD_STYLES.base, FIELD_STYLES.ok, 'h-11 appearance-none pr-10 text-sm font-semibold')}
             >
               {SORT_OPTIONS.map(option => (
                 <option key={option.value} value={option.value}>
