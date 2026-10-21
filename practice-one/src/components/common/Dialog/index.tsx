@@ -78,7 +78,11 @@ const Dialog: React.FC<DialogProps> = ({ title, description, icon, children, act
   }, []);
 
   const handleBackdropMouseDown = (event: MouseEvent<HTMLDivElement>) => {
-    if (event.target === event.currentTarget) closeRef.current?.();
+    if (event.target !== event.currentTarget) return;
+
+    // Without this, the browser moves focus to the removed backdrop after the cleanup restored it to the opener
+    event.preventDefault();
+    closeRef.current?.();
   };
 
   return (
