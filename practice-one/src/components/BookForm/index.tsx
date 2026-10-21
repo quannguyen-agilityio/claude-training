@@ -131,7 +131,14 @@ const BookForm: React.FC<BookFormProps> = ({ bookId }) => {
     setSaving(true);
     setSaveFailed(false);
 
-    const book: Book = { ...values, id: bookId ?? newBookId, published: Number(values.published) };
+    // Save what was validated: every rule checks the trimmed value
+    const trimmed = { ...values };
+
+    FIELD_NAMES.forEach(name => {
+      trimmed[name] = values[name].trim();
+    });
+
+    const book: Book = { ...trimmed, id: bookId ?? newBookId, published: Number(trimmed.published) };
 
     try {
       if (bookId) {
