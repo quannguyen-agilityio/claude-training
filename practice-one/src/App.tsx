@@ -5,6 +5,7 @@ import BookPage from '@pages/Book';
 import AddPage from '@pages/Add';
 import './index.css';
 import EditPage from '@pages/Edit';
+import NotFoundPage from '@pages/NotFound';
 
 const router = createBrowserRouter([
   {
@@ -22,6 +23,10 @@ const router = createBrowserRouter([
   {
     path: '/edit-book/:bookId',
     element: <EditPage />,
+  },
+  {
+    path: '*',
+    element: <NotFoundPage />,
   },
 ]);
 
