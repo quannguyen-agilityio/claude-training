@@ -65,7 +65,7 @@ Work through the steps in order.
 3. Load the repo's merge settings and the base branch's protection:
    ```bash
    gh api "repos/{owner}/{repo}" --jq '{default_branch, allow_merge_commit, allow_squash_merge, allow_rebase_merge, delete_branch_on_merge}'
-   gh api "repos/{owner}/{repo}/branches/<base>/protection"   # 404 means the branch isn't protected
+   gh api "repos/{owner}/{repo}/branches/<base>/protection"   # 404, or 403 "Upgrade to GitHub Pro" on a free private repo: no protection
    ```
 4. Read the context:
    - Commits: `gh pr view <n> --json commits --jq '.commits[] | "\(.oid[0:7]) \(.messageHeadline)"'`.
