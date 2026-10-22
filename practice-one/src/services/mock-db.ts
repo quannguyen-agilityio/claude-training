@@ -20,7 +20,10 @@ export const MockDb = {
       const raw = LocalStorage.get(StorageKeys.BOOKS);
 
       if (raw && version === String(seed.version)) {
-        return JSON.parse(raw) as Book[];
+        const books: unknown = JSON.parse(raw);
+
+        // Valid JSON that isn't a list (e.g. "null") is corrupted too
+        if (Array.isArray(books)) return books as Book[];
       }
     } catch {
       // Corrupted or unavailable storage, fall through to the seed
