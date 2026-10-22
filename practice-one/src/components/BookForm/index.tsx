@@ -9,7 +9,7 @@ import { IconNames } from '@enums/Icon';
 import { LoadStatus } from '@enums/LoadStatus';
 import { CATEGORIES } from '@constants/Category';
 import RegexValue from '@constants/RegexValue';
-import validateInput, { FieldRule } from '@helpers/validator';
+import validateInput, { FieldRule, isHttpUrl } from '@helpers/validator';
 import { Book } from '@components/BookList/BookCard';
 import Alert from '@components/common/Alert';
 import BackLink from '@components/common/BackLink';
@@ -32,7 +32,7 @@ type BookFormErrors = Partial<Record<TextFieldName, string>>;
 const RULES: Record<TextFieldName, FieldRule> = {
   title: { message: ErrorMsgs.TITLE_REQUIRED },
   author: { message: ErrorMsgs.AUTHOR_REQUIRED },
-  thumbnail: { message: ErrorMsgs.INVALID_URL, pattern: RegexValue.URL },
+  thumbnail: { message: ErrorMsgs.INVALID_URL, isValid: isHttpUrl },
   published: { message: ErrorMsgs.INVALID_YEAR, pattern: RegexValue.POSITIVE_NUMBER },
   publishers: { message: ErrorMsgs.PUBLISHER_REQUIRED },
   country: { message: ErrorMsgs.COUNTRY_REQUIRED },
@@ -131,7 +131,14 @@ const BookForm: React.FC<BookFormProps> = ({ bookId }) => {
     setSaving(true);
     setSaveFailed(false);
 
-    const book: Book = { ...values, id: bookId ?? newBookId, published: Number(values.published) };
+    // Save what was validated: every rule checks the trimmed value
+    const trimmed = { ...values };
+
+    FIELD_NAMES.forEach(name => {
+      trimmed[name] = values[name].trim();
+    });
+
+    const book: Book = { ...trimmed, id: bookId ?? newBookId, published: Number(trimmed.published) };
 
     try {
       if (bookId) {
