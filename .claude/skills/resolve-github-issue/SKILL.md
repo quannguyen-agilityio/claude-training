@@ -1,55 +1,55 @@
 ---
-name: resolve-gitlab-issue
-description: Fix a GitLab issue end to end. Branch off a given base branch, implement the fix as small conventional commits, test it (lint, build, runtime repro), push, and open a draft merge request for the user to review. Use when the user wants an issue/ticket (number or URL) resolved and turned into a draft MR/PR.
-argument-hint: '<issue number | issue URL> <base branch> [--yes]'
-allowed-tools: Bash(glab auth status:*), Bash(glab repo view:*), Bash(glab issue view:*), Bash(glab issue list:*), Bash(glab mr list:*), Bash(glab mr view:*), Bash(git status:*), Bash(git fetch:*), Bash(git log:*), Bash(git diff:*), Bash(git branch:*), Bash(git rev-parse:*), Bash(git ls-remote:*), Bash(node --version), Bash(pnpm --version)
+name: resolve-github-issue
+description: Fix a GitHub issue end to end. Branch off a given base branch, implement the fix as small conventional commits, test it (lint, build, runtime repro), push, and open a draft pull request for the user to review. Use when the user wants an issue/ticket (number or URL) resolved and turned into a draft PR.
+argument-hint: "<issue number | issue URL> <base branch> [--yes]"
+allowed-tools: Bash(gh auth status:*), Bash(gh repo view:*), Bash(gh issue view:*), Bash(gh issue list:*), Bash(gh pr list:*), Bash(gh pr view:*), Bash(gh pr checks:*), Bash(gh run view:*), Bash(git status:*), Bash(git fetch:*), Bash(git log:*), Bash(git diff:*), Bash(git branch:*), Bash(git rev-parse:*), Bash(git ls-remote:*), Bash(node --version), Bash(pnpm --version)
 ---
 
-# Resolve a GitLab issue and open a draft MR
+# Resolve a GitHub issue and open a draft PR
 
 ## Usage
 
 Run it from the repo root in Claude Code:
 
 ```
-/resolve-gitlab-issue <issue number | issue URL> <base branch> [--yes]
+/resolve-github-issue <issue number | issue URL> <base branch> [--yes]
 ```
 
-| Example                                                                                                           | What it does                                                                     |
-| ----------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| `/resolve-gitlab-issue 3 sample-project`                                                                          | Fixes issue #3 on a new branch off `sample-project` and asks once before pushing |
-| `/resolve-gitlab-issue #3 main`                                                                                   | Same, branching off and targeting `main`                                         |
-| `/resolve-gitlab-issue https://gitlab.asoft-python.com/quan.nguyen/claude-training/-/work_items/3 sample-project` | Takes the issue number from the URL (`/-/issues/<n>` works too)                  |
-| `/resolve-gitlab-issue 3 sample-project --yes`                                                                    | Pushes and opens the draft MR without asking (only if all tests pass)            |
+| Example                                                                                       | What it does                                                                     |
+| --------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| `/resolve-github-issue 3 sample-project`                                                      | Fixes issue #3 on a new branch off `sample-project` and asks once before pushing |
+| `/resolve-github-issue #3 main`                                                               | Same, branching off and targeting `main`                                         |
+| `/resolve-github-issue https://github.com/quannguyen-agilityio/claude-training/issues/3 main` | Takes the issue number from the URL                                              |
+| `/resolve-github-issue 3 sample-project --yes`                                                | Pushes and opens the draft PR without asking (only if all tests pass)            |
 
 Before you start, you need:
 
-- `glab` logged in to the repo's GitLab host, and SSH push access to `origin`.
+- `gh` logged in to github.com with access to the repo, and SSH push access to `origin`.
 - No uncommitted changes to tracked files. Untracked files are fine.
-- An issue filed with enough detail, ideally by `/create-gitlab-issue`.
+- An issue filed with enough detail, ideally by `/create-github-issue`.
 
-You get back a **draft** MR from `fix/<iid>-<slug>` into your base branch, with `Closes #<iid>`, one entry per commit, and how it was tested. Review it in GitLab, then mark it ready and merge it yourself. Claude never merges. Afterwards you're switched back to the branch you started on. If tests fail, nothing is pushed and the branch stays local for you to inspect.
+You get back a **draft** PR from `fix/<number>-<slug>` into your base branch, with `Closes #<number>`, one entry per commit, and how it was tested. Review it on GitHub, then mark it ready and merge it yourself (or with `/merge-github-pr`). This skill never merges. Afterwards you're switched back to the branch you started on. If tests fail, nothing is pushed and the branch stays local for you to inspect.
 
 Input: `$ARGUMENTS`
 
-- **Issue:** a number (`3`, `#3`) or a URL (`…/-/issues/3` or `…/-/work_items/3`). Take the trailing number as the issue iid.
-- **Base branch:** the branch to start from and to target with the MR (e.g. `sample-project`, `main`). If it's missing, ask. Don't guess.
+- **Issue:** a number (`3`, `#3`) or a URL (`…/issues/3`). Take the trailing number as the issue number.
+- **Base branch:** the branch to start from and to target with the PR (e.g. `sample-project`, `main`). If it's missing, ask. Don't guess.
 - `--yes`: skip the confirmation before pushing in step 7.
 
-Work through the steps in order. The end result is a **draft** MR. **Never merge, never push to the base branch, never force-push a branch you didn't create in this run.**
+Work through the steps in order. The end result is a **draft** PR. **Never merge, never push to the base branch, never force-push a branch you didn't create in this run.**
 
 ## 1. Preflight
 
-1. Run `glab auth status` and `glab repo view`. If glab isn't authenticated for the host in `git remote -v`, stop and tell the user to run `glab auth login --hostname <host>`.
-2. Read the issue in full: `glab issue view <iid> --comments`. If that prints nothing (glab is sometimes silent), use `glab api "projects/:id/issues/<iid>"` and `glab api "projects/:id/issues/<iid>/notes"`. Take note of Steps to reproduce, Expected, Root cause, Suggested fix, Affected files, and anything related it mentions.
+1. Run `gh auth status` and `gh repo view --json nameWithOwner,defaultBranchRef`. If gh isn't authenticated or can't see the repo behind `origin` (see `git remote -v`), stop and tell the user to run `gh auth login`.
+2. Read the issue in full: `gh issue view <number> --comments`. Take note of Steps to reproduce, Expected, Root cause, Suggested fix, Affected files, and anything related it mentions.
    - If the issue is closed, stop and ask whether to continue.
-3. Look for existing work: `glab mr list --search "#<iid>"` and `git ls-remote --heads origin "*/<iid>-*"`. If an MR or branch already exists for this issue, show it to the user and stop, unless they say to continue.
+3. Look for existing work: `gh pr list --state all --search "<number> in:body"` and `git ls-remote --heads origin "*/<number>-*"`. If a PR or branch already exists for this issue, show it to the user and stop, unless they say to continue.
 4. The working tree must have no modified tracked files (`git status --porcelain | grep -v '^??'`). If it does, stop and ask. Don't stash or discard the user's work. Untracked files are fine. Remember the current branch so you can switch back to it in step 8.
 5. Check that the base branch exists: `git fetch origin` then `git rev-parse --verify origin/<base>`.
 
 ## 2. Create the branch
 
-Name: `<type>/<iid>-<slug>`
+Name: `<type>/<number>-<slug>`
 
 - `<type>`: `fix` for bugs. Use `feat`, `refactor`, `chore` or `docs` only if the issue clearly is one of those.
 - `<slug>`: 3–5 lowercase, hyphenated words from the issue title, without the `[Area]` prefix. Example: issue #3 `[Search] Typing in the search box doesn't filter books` becomes `fix/3-search-box-filter`.
@@ -82,8 +82,8 @@ Break the fix into small commits that each build on their own and are easy to re
 
 Scope:
 
-- Fix what the issue describes. Follow its Suggested fix unless you find it's wrong, and explain why in the MR if you deviate.
-- Don't fix related bugs it only mentions (e.g. "see likely-bugs #3"). List them under **Out of scope** in the MR.
+- Fix what the issue describes. Follow its Suggested fix unless you find it's wrong, and explain why in the PR if you deviate.
+- Don't fix related bugs it only mentions (e.g. "see likely-bugs #3"). List them under **Out of scope** in the PR.
 - If a correct fix needs a much bigger change than the issue suggests (new dependency, API change, touching many unrelated files), stop and ask before going on.
 - Match the surrounding code style: path aliases (`@components/…`), Tailwind classes, the `useCallback` pattern in `stores/book/index.tsx`, and so on.
 
@@ -105,12 +105,12 @@ For each planned commit:
 
    <why, wrapped at 72 cols, if not obvious>
 
-   Refs #<iid>
+   Refs #<number>
    ```
 
    Add the commit attribution trailer the session requires. Validate the message before committing, because the commit-msg hook won't run: `printf '%s\n' "<message>" | pnpm --config.verify-deps-before-run=false exec commitlint --config=commitlint.config.cjs`.
 
-The last commit may use `Closes #<iid>` instead of `Refs`, but the MR description already closes the issue, so `Refs` everywhere is fine.
+The last commit may use `Closes #<number>` instead of `Refs`, but the PR description already closes the issue, so `Refs` everywhere is fine.
 
 ## 6. Test carefully
 
@@ -128,18 +128,18 @@ If something fails, fix it with a new commit (or amend the commit that caused it
 
 If the change can't be observed at runtime (types, config, dead code), say so and rely on the static checks plus a quoted before/after.
 
-## 7. Push and open the draft MR
+## 7. Push and open the draft PR
 
-Unless `--yes` was passed, show the user the branch, `git log --oneline origin/<base>..HEAD`, `git diff --stat origin/<base>` and the test summary, and ask before pushing. Pushing and creating an MR are outward-facing.
+Unless `--yes` was passed, show the user the branch, `git log --oneline origin/<base>..HEAD`, `git diff --stat origin/<base>` and the test summary, and ask before pushing. Pushing and creating a PR are outward-facing.
 
-Write the MR description to `<scratchpad>/mr-<iid>.md`:
+Write the PR description to `<scratchpad>/pr-<number>.md`:
 
 ```markdown
 ## Summary
 
 <1–2 sentences: what was broken and what this changes.>
 
-Closes #<iid>
+Closes #<number>
 
 ## Changes
 
@@ -153,7 +153,7 @@ Closes #<iid>
 - Runtime: <steps followed, against what backend, what was observed>
 - Regression checks: <what else was exercised>
 
-<screenshot markdown from the upload>
+<screenshot markdown>
 
 ## Out of scope / follow-ups
 
@@ -164,23 +164,24 @@ Closes #<iid>
 <deviations from the issue's suggested fix, trade-offs, anything to look at closely>
 ```
 
-Upload screenshots with `glab api --method POST "projects/:id/uploads" -F "file=@<path>"` and use the returned `markdown` field. Check them for secrets, tokens and home paths first. Leave out sections that don't apply.
+Add screenshots the same way as `/create-github-issue` step 4 (commit them to the `issue-assets` branch and link the `?raw=true` URL). Check them for secrets, tokens and home paths first. Leave out sections that don't apply.
+
+End the PR description with the pull request attribution line the session requires.
 
 ```bash
 git push -u origin <branch>
-glab mr create --draft \
-  --source-branch <branch> --target-branch <base> \
+gh pr create --draft \
+  --head <branch> --base <base> \
   --title "<first commit subject, or a summary in the same conventional style>" \
-  --description "$(cat <scratchpad>/mr-<iid>.md)" \
-  --remove-source-branch --yes
+  --body-file <scratchpad>/pr-<number>.md
 ```
 
-glab may print nothing on success. Always confirm with `glab api "projects/:id/merge_requests?source_branch=<branch>"`: exactly one MR, `draft: true`, the right target branch. Take the `web_url` from there.
+Confirm with `gh pr view <branch> --json number,isDraft,baseRefName,url`: `isDraft: true` and the right base branch. GitHub only closes the issue on merge when the base is the repo's default branch; if it isn't, say so in the report.
 
-End the MR description with the pull request attribution line the session requires.
+The push starts the **CI** workflow (`.github/workflows/ci.yml`: lint and build). Check it with `gh pr checks <branch> --watch` (or come back to it later). If a job fails, read it with `gh run view <run id> --log-failed`, fix it with a new commit and push again. Report the CI result with the PR.
 
 ## 8. Wrap up
 
-1. Report the MR URL, the branch, the commits, and a one-line test summary.
+1. Report the PR URL, the branch, the commits, a one-line test summary and the CI result.
 2. Switch back to the branch the user started on (`git switch <original>`). Check that `git status` matches what it was in step 1, and that no dev server or Storybook process is still running.
-3. If the issue came from `docs/likely-bugs.md`, suggest adding a `- **MR:** <url>` line under that entry. Don't edit it on the fix branch.
+3. If the issue came from `docs/likely-bugs.md`, suggest adding a `- **PR:** <url>` line under that entry. Don't edit it on the fix branch.

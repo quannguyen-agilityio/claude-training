@@ -53,8 +53,8 @@ Build a website to manage Books:
 
 ## GUIDELINE
 
-1. Clone repository: `git clone git@gitlab.asoft-python.com:quan.nguyen/react-training.git`
-2. Check out branch: `git checkout feat/practice-one`
+1. Clone repository: `git clone git@github.com:quannguyen-agilityio/claude-training.git`
+2. Check out branch: `git checkout sample-project`
 3. CD to the main folder: `cd ./practice-one`
 4. Install packages with pnpm 11 (pinned in `package.json`; run `corepack enable` to use it automatically): `pnpm install --frozen-lockfile`
 5. Run the project: `pnpm dev` (no backend or `.env` needed)

@@ -153,7 +153,7 @@ Verified result (pnpm 7.33.7): installs in seconds, leaves `pnpm-lock.yaml` unch
 
 Notes:
 - `prepare` runs `cd .. && husky install practice-one/.husky`. It assumes the **parent directory of `practice-one/` is the git root**. In this checkout that parent is `claude-training/`, so the install **sets `core.hooksPath = practice-one/.husky` in the claude-training repo's git config (verified)**. To undo it: `git -C .. config --unset core.hooksPath`.
-- The original README says to clone `git@gitlab.asoft-python.com:quan.nguyen/react-training.git` and check out `feat/practice-one`. That's the upstream source, not this repo.
+- The README originally said to clone the upstream `react-training` GitLab repo. It now points to this repo on GitHub (`quannguyen-agilityio/claude-training`, branch `sample-project`).
 
 ---
 
@@ -209,7 +209,7 @@ NODE_OPTIONS=--openssl-legacy-provider pnpm build-storybook   # static Storybook
 - **There is no `start` command and no server.** `dist/` is static files. Host it on any static host (the README names Vercel).
 - **SPA fallback:** routes like `/edit-book/123` need the host to rewrite unknown paths to `index.html`. There's no `vercel.json` or equivalent in the repo **(inferred risk: deep links/refreshes would 404 on a plain static host)**.
 - **Docker:** none (no `Dockerfile` or `docker-compose`).
-- **CI/CD:** none (no `.github/workflows`, `.gitlab-ci.yml`, etc.).
+- **CI/CD:** GitHub Actions (`.github/workflows/ci.yml`) runs `lint` and `build` on pushes to `main`/`sample-project` and on pull requests. No deployment.
 
 ---
 
@@ -313,9 +313,9 @@ Import aliases (defined in both `tsconfig.json` and `vite.config.ts`): `@assets`
 
 6. **Mismatch with your expectation.** It's Vite + React Router, not Next.js. There's no SSR, no API routes, and no middleware.
 7. **README versions drift:** it says React Router 6.6.1, but the lockfile resolves 6.8.0. It also lists "Vercel v25.0.0", but the Vercel CLI isn't a dependency.
-8. **README clone instructions** point to the upstream GitLab repo and branch, not this checkout. `practice-one/` is currently **untracked** in the `claude-training` repo (`git status` shows `?? practice-one/`).
+8. **README clone instructions** pointed to the upstream GitLab repo and branch, not this checkout (fixed: they now point to this repo on GitHub). `practice-one/` is currently **untracked** in the `claude-training` repo (`git status` shows `?? practice-one/`).
 9. **Unused dependencies:** `localforage`, `match-sorter`, `sort-by`. Also, `storybook` sits in `dependencies` rather than `devDependencies`.
-10. **No tests, CI, Docker, or engines field**, and no SPA rewrite config for Vercel.
+10. **No tests, Docker, or engines field**, and no SPA rewrite config for Vercel. (CI was added later: GitHub Actions lint and build.)
 
 ### Behaviour worth knowing
 
