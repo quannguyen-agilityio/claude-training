@@ -27,19 +27,19 @@ const BookProvider = ({ children }: { children: ReactNode }): ReactElement => {
     });
   }, []);
 
-  const setDisplayType = (type: DisplayTypes): void => {
+  const setDisplayType = useCallback((type: DisplayTypes): void => {
     dispatch({
       type: BookActionsType.SET_DISPLAY_TYPE,
       displayType: type,
     });
-  };
+  }, []);
 
-  const setCurrentCategory = (category: CategoryTitle): void => {
+  const setCurrentCategory = useCallback((category: CategoryTitle): void => {
     dispatch({
       type: BookActionsType.SET_CURRENT_CATEGORY,
       currentCategory: category,
     });
-  };
+  }, []);
 
   const setCurrentBooks = useCallback((bookList: Book[]): void => {
     dispatch({
@@ -48,12 +48,12 @@ const BookProvider = ({ children }: { children: ReactNode }): ReactElement => {
     });
   }, []);
 
-  const setCurrentSortType = (type: SortType): void => {
+  const setCurrentSortType = useCallback((type: SortType): void => {
     dispatch({
       type: BookActionsType.SET_CURRENT_SORT_TYPE,
       currentSortType: type,
     });
-  };
+  }, []);
 
   const setBookToDelete = useCallback((book?: BookToDelete): void => {
     dispatch({
@@ -90,10 +90,13 @@ const BookProvider = ({ children }: { children: ReactNode }): ReactElement => {
       state.books,
       getAllBooks,
       state.displayType,
+      setDisplayType,
       state.currentCategory,
+      setCurrentCategory,
       state.currentBooks,
       setCurrentBooks,
       state.currentSortType,
+      setCurrentSortType,
       state.searchInput,
       setSearchInput,
       state.bookToDelete,
