@@ -22,6 +22,9 @@ const BookPage: React.FC = () => {
   const [book, setBook] = useState<Book>();
   const [status, setStatus] = useState<LoadStatus>(LoadStatus.LOADING);
 
+  // Close the delete dialog when leaving the page (e.g. browser back), so it doesn't reopen on the next page
+  useEffect(() => () => setBookToDelete(undefined), [setBookToDelete]);
+
   useEffect(() => {
     let ignore = false;
 

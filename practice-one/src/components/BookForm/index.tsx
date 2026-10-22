@@ -220,7 +220,8 @@ const BookForm: React.FC<BookFormProps> = ({ bookId }) => {
             title="We couldn't save this book."
             text="Your changes are still here."
             actionLabel="Try again"
-            onAction={save}
+            // Submit again so fields edited after the failure are re-validated
+            onAction={() => formRef.current?.requestSubmit()}
           />
         </div>
       ) : null}

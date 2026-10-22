@@ -35,11 +35,15 @@ function Home() {
     searchInput,
     setSearchInput,
     bookToDelete,
+    setBookToDelete,
   } = useContext(BookContext);
 
   // Books already in the store (coming back from another page) show right away while they refresh
   const [status, setStatus] = useState<LoadStatus>(books.length ? LoadStatus.READY : LoadStatus.LOADING);
   const [reloadKey, setReloadKey] = useState<number>(0);
+
+  // Close the delete dialog when leaving the page (e.g. browser back), so it doesn't reopen on the next page
+  useEffect(() => () => setBookToDelete(undefined), [setBookToDelete]);
 
   useEffect(() => {
     let ignore = false;

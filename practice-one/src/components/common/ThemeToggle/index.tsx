@@ -14,8 +14,13 @@ const ThemeToggle: React.FC = () => {
     const next = !isDark;
 
     document.documentElement.classList.toggle(ThemeTypes.DARK, next);
-    LocalStorage.set(StorageKeys.THEME, next ? ThemeTypes.DARK : ThemeTypes.LIGHT);
     setIsDark(next);
+
+    try {
+      LocalStorage.set(StorageKeys.THEME, next ? ThemeTypes.DARK : ThemeTypes.LIGHT);
+    } catch {
+      // Storage blocked, the theme only lasts until the next reload
+    }
   };
 
   return (
