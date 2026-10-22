@@ -1,0 +1,60 @@
+# The app lives in practice-one/; every job runs from there.
+name: CI
+
+on:
+  push:
+    branches: [main, sample-project]
+  pull_request:
+
+permissions:
+  contents: read
+
+# A newer push to the same branch or PR cancels the older run
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Husky's `prepare` script only installs local git hooks; skip it in CI.
+  HUSKY: '0'
+
+defaults:
+  run:
+    working-directory: practice-one
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # pnpm version comes from `packageManager` in package.json
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: practice-one/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: practice-one/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint:eslint
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: practice-one/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: practice-one/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: practice-one/dist/
+          retention-days: 7
