@@ -34,6 +34,8 @@ Work happens on `sample-project` (the default branch) through issues and pull re
 
 Commits follow Conventional Commits (commitlint enforces it).
 
+Before any of that, `/grill-me <idea>` stress-tests a loose idea or plan by interviewing you in rounds until every decision is settled. It writes no files.
+
 ## History
 
 The project started on GitLab and moved here on 2026-10-22. Issue numbers were kept. Each GitLab merge request is recorded as a comment on the issue it closed, and screenshots from that time are on the `gitlab-uploads` branch.
